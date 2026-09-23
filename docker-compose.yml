@@ -1,0 +1,78 @@
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: portal-bhamada-app
+    restart: unless-stopped
+
+    working_dir: /var/www
+
+    volumes:
+      - portal_data:/var/www
+
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: portal_bhamada
+      DB_USERNAME: admin-portal
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+
+    networks:
+      - portal_network
+
+
+  portal:
+    image: nginx:alpine
+    container_name: portal-bhamada
+    restart: unless-stopped
+
+    depends_on:
+      - app
+
+    volumes:
+      - portal_data:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+    networks:
+      - portal_network
+      - caddy_network
+
+
+  mysql:
+    image: mysql:8.4
+    container_name: portal-bhamada-mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_DATABASE: portal_bhamada
+      MYSQL_USER: admin-portal
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    volumes:
+      - portal_mysql_data:/var/lib/mysql
+
+    networks:
+      - portal_network
+
+
+volumes:
+
+  portal_data:
+
+  portal_nginx_config:
+
+  portal_mysql_data:
+
+
+networks:
+
+  portal_network:
+
+  caddy_network:
+    external: true
+    name: caddy_caddy_network
