@@ -26,7 +26,10 @@ services:
 
 
   portal:
-    image: nginx:alpine
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+
     container_name: portal-bhamada
     restart: unless-stopped
 
@@ -35,7 +38,6 @@ services:
 
     volumes:
       - portal_data:/var/www
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
 
     networks:
       - portal_network
@@ -63,8 +65,6 @@ services:
 volumes:
 
   portal_data:
-
-  portal_nginx_config:
 
   portal_mysql_data:
 
