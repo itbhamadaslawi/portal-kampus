@@ -10,10 +10,11 @@ services:
 
     working_dir: /var/www
 
-    volumes:
-      - portal_data:/var/www
-
     environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: https://portal.bhamada.ac.id
+
       DB_CONNECTION: mysql
       DB_HOST: mysql
       DB_PORT: 3306
@@ -27,17 +28,14 @@ services:
 
   portal:
     build:
-      context: ./docker/nginx
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/nginx/Dockerfile
 
     container_name: portal-bhamada
     restart: unless-stopped
 
     depends_on:
       - app
-
-    volumes:
-      - portal_data:/var/www
 
     networks:
       - portal_network
@@ -63,8 +61,6 @@ services:
 
 
 volumes:
-
-  portal_data:
 
   portal_mysql_data:
 
