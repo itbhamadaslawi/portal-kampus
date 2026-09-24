@@ -4,6 +4,13 @@ APP_KEY=base64:G1mcSJJvvuhCRaFwP6hQPv0T3NHsG8PdM8wZU/H/t/0=
 APP_DEBUG=true
 APP_URL=https://portal.bhamada.ac.id
 
+
+KEYCLOAK_BASE_URL=https://sso.bhamada.ac.id
+KEYCLOAK_REALM=bhamada
+KEYCLOAK_CLIENT_ID=portal-bhamada
+KEYCLOAK_CLIENT_SECRET=Z9slFha1u5HP4tRq81O8plt0VpeoCYBFVVx9FdSawTxxukY2fZ5lybnMdcpzycSvQujzzkjqoAUF40j01ksymB
+KEYCLOAK_REDIRECT_URI=https://portal.bhamada.ac.id/auth/callback
+
 APP_LOCALE=id
 APP_FALLBACK_LOCALE=id
 APP_FAKER_LOCALE=id_ID
