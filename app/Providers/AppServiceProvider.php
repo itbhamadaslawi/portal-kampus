@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use SocialiteProviders\Keycloak\Provider as KeycloakProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use Illuminate\Support\Facades\Event;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +23,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-       URL::forceScheme('https');
+    //    URL::forceScheme('https');
+
+       Event::listen(function (SocialiteWasCalled $event) {
+            $event->extendSocialite(
+                'keycloak',
+                KeycloakProvider::class
+            );
+        });
+
     }
 }

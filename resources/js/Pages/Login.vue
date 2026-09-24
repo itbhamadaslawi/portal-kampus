@@ -1,15 +1,78 @@
 <script setup>
-const login = () => {
-    // window.location.href = '/auth/login'
-    window.location.href = '/dashboard'
-}
+import { Head } from '@inertiajs/vue3'
+import { onMounted, onUnmounted } from 'vue'
 
 const logoUrl = '/images/logo.png'
+
+let loginWindow = null
+
+const login = () => {
+    const width = 500
+    const height = 700
+
+    const left = (window.screen.width - width) / 2
+    const top = (window.screen.height - height) / 2
+
+    loginWindow = window.open(
+        '/auth/login?popup=1',
+        'keycloakLogin',
+        [
+            `width=${width}`,
+            `height=${height}`,
+            `left=${left}`,
+            `top=${top}`,
+            'resizable=yes',
+            'scrollbars=yes',
+            'toolbar=no',
+            'menubar=no',
+            'location=yes',
+            'status=no'
+        ].join(',')
+    )
+
+    if (!loginWindow) {
+        alert(
+            'Popup login diblokir oleh browser. Silakan izinkan popup untuk website ini.'
+        )
+    }
+}
+
+const handleMessage = (event) => {
+    // Pastikan pesan berasal dari website kita sendiri
+    if (event.origin !== window.location.origin) {
+        return
+    }
+
+    // Pastikan pesan adalah pesan login berhasil
+    if (event.data?.type !== 'sso-login-success') {
+        return
+    }
+
+    // Tutup popup jika masih terbuka
+    if (loginWindow && !loginWindow.closed) {
+        loginWindow.close()
+    }
+
+    // Refresh halaman agar session Laravel terbaca
+    window.location.reload()
+}
+
+onMounted(() => {
+    window.addEventListener('message', handleMessage)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('message', handleMessage)
+})
 </script>
 
 <template>
+
+    <Head title="Login" />
+
     <div
-        class="relative min-h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
+        class="relative min-h-screen overflow-hidden
+               bg-cover bg-center bg-no-repeat"
         style="
             background-image:
                 linear-gradient(
@@ -42,11 +105,14 @@ const logoUrl = '/images/logo.png'
 
                 <!-- Logo -->
                 <div class="flex justify-center">
+
                     <img
                         :src="logoUrl"
                         alt="Logo Universitas Bhamada Slawi"
-                        class="h-20 w-20 object-contain sm:h-24 sm:w-24"
+                        class="h-20 w-20 object-contain
+                               sm:h-24 sm:w-24"
                     />
+
                 </div>
 
                 <!-- Header -->
@@ -56,7 +122,7 @@ const logoUrl = '/images/logo.png'
                         class="text-2xl font-semibold
                                tracking-tight text-gray-900"
                     >
-                        Portal Akademik
+                        Portal Bhamada
                     </h1>
 
                     <p
@@ -115,6 +181,7 @@ const logoUrl = '/images/logo.png'
                                    duration-200
                                    group-hover:translate-x-0.5"
                         >
+
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
@@ -136,6 +203,7 @@ const logoUrl = '/images/logo.png'
                                 stroke-linejoin="round"
                                 d="m18 9 3 3-3 3"
                             />
+
                         </svg>
 
                         <span>
@@ -166,6 +234,7 @@ const logoUrl = '/images/logo.png'
                                    transition-colors
                                    hover:bg-gray-50"
                         >
+
                             <span>
                                 Cek Akun SSO / Lupa Password?
                             </span>
@@ -182,12 +251,15 @@ const logoUrl = '/images/logo.png'
                                        duration-200
                                        group-hover:translate-x-1"
                             >
+
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     d="m9 18 6-6-6-6"
                                 />
+
                             </svg>
+
                         </a>
 
                         <!-- Apa itu SSO -->
@@ -204,6 +276,7 @@ const logoUrl = '/images/logo.png'
                                    transition-colors
                                    hover:bg-gray-50"
                         >
+
                             <span>
                                 Apa itu SSO?
                             </span>
@@ -220,12 +293,15 @@ const logoUrl = '/images/logo.png'
                                        duration-200
                                        group-hover:translate-x-1"
                             >
+
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     d="m9 18 6-6-6-6"
                                 />
+
                             </svg>
+
                         </a>
 
                         <!-- Cara Login -->
@@ -241,6 +317,7 @@ const logoUrl = '/images/logo.png'
                                    transition-colors
                                    hover:bg-gray-50"
                         >
+
                             <span>
                                 Cara masuk menggunakan SSO?
                             </span>
@@ -257,12 +334,15 @@ const logoUrl = '/images/logo.png'
                                        duration-200
                                        group-hover:translate-x-1"
                             >
+
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     d="m9 18 6-6-6-6"
                                 />
+
                             </svg>
+
                         </a>
 
                     </div>
@@ -275,12 +355,14 @@ const logoUrl = '/images/logo.png'
                            border-t border-gray-100
                            pt-4 text-center"
                 >
+
                     <p
                         class="text-xs italic
                                text-gray-400"
                     >
                         "Unggul, Berkarakter, dan Berdaya Saing"
                     </p>
+
                 </div>
 
                 <!-- Footer -->
@@ -305,4 +387,5 @@ const logoUrl = '/images/logo.png'
         </div>
 
     </div>
+
 </template>
