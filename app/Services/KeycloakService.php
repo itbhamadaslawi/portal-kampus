@@ -8,6 +8,7 @@ use RuntimeException;
 class KeycloakService
 {
     protected string $baseUrl;
+
     protected string $realm;
 
     public function __construct()
@@ -27,9 +28,9 @@ class KeycloakService
         $response = Http::asForm()
             ->post(
                 $this->baseUrl
-                . '/realms/'
-                . $this->realm
-                . '/protocol/openid-connect/token',
+                .'/realms/'
+                .$this->realm
+                .'/protocol/openid-connect/token',
                 [
                     'grant_type' => 'client_credentials',
 
@@ -46,9 +47,9 @@ class KeycloakService
         if ($response->failed()) {
             throw new RuntimeException(
                 'Keycloak token error: '
-                . $response->status()
-                . ' - '
-                . $response->body()
+                .$response->status()
+                .' - '
+                .$response->body()
             );
         }
 
@@ -57,7 +58,7 @@ class KeycloakService
         if (! $token) {
             throw new RuntimeException(
                 'Access token tidak ditemukan dari Keycloak: '
-                . $response->body()
+                .$response->body()
             );
         }
 
@@ -72,19 +73,42 @@ class KeycloakService
             ->acceptJson()
             ->get(
                 $this->baseUrl
-                . '/admin/realms/'
-                . $this->realm
-                . '/users/'
-                . urlencode($userId)
-                . '/sessions'
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId)
+                .'/sessions'
             );
 
         if ($response->failed()) {
             throw new RuntimeException(
                 'Keycloak session error: '
-                . $response->status()
-                . ' - '
-                . $response->body()
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    public function getUserDevices(string $accessToken): array
+    {
+        $response = Http::withToken($accessToken)
+            ->acceptJson()
+            ->get(
+                $this->baseUrl
+                .'/realms/'
+                .$this->realm
+                .'/account/sessions/devices'
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak device session error: '
+                .$response->status()
+                .' - '
+                .$response->body()
             );
         }
 
