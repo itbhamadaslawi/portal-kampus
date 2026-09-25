@@ -96,7 +96,6 @@ onMounted(() => {
     <Head title="Sesi Aktif" />
 
     <DashboardLayout :user="user">
-
         <div class="mb-6 flex items-start gap-3">
             <div
                 class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"
@@ -217,7 +216,6 @@ onMounted(() => {
         </div>
 
         <div v-else-if="!error" class="space-y-4">
-
             <div
                 class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
             >
@@ -265,7 +263,6 @@ onMounted(() => {
                     class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-emerald-200 hover:shadow-md"
                 >
                     <div class="flex items-start gap-4">
-
                         <div
                             class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"
                         >
@@ -353,7 +350,7 @@ onMounted(() => {
                             </div>
 
                             <p class="mt-1 text-sm text-gray-500">
-                                Sesi login melalui Portal Bhamada
+                                Sesi aktif pada aplikasi SSO
                             </p>
 
                             <div
@@ -482,8 +479,6 @@ onMounted(() => {
                     dengan akun Anda.
                 </p>
             </div>
-
         </div>
-
     </DashboardLayout>
 </template>

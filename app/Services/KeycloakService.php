@@ -26,6 +26,7 @@ class KeycloakService
     protected function getAdminToken(): string
     {
         $response = Http::asForm()
+            ->timeout(10)
             ->post(
                 $this->baseUrl
                 .'/realms/'
@@ -33,14 +34,8 @@ class KeycloakService
                 .'/protocol/openid-connect/token',
                 [
                     'grant_type' => 'client_credentials',
-
-                    'client_id' => config(
-                        'services.keycloak.client_id'
-                    ),
-
-                    'client_secret' => config(
-                        'services.keycloak.client_secret'
-                    ),
+                    'client_id' => config('services.keycloak.client_id'),
+                    'client_secret' => config('services.keycloak.client_secret'),
                 ]
             );
 
@@ -71,6 +66,7 @@ class KeycloakService
 
         $response = Http::withToken($token)
             ->acceptJson()
+            ->timeout(10)
             ->get(
                 $this->baseUrl
                 .'/admin/realms/'
@@ -96,6 +92,7 @@ class KeycloakService
     {
         $response = Http::withToken($accessToken)
             ->acceptJson()
+            ->timeout(10)
             ->get(
                 $this->baseUrl
                 .'/realms/'
@@ -103,11 +100,61 @@ class KeycloakService
                 .'/account/sessions/devices'
             );
 
+        if ($response->status() === 401) {
+            throw new KeycloakUnauthorizedException(
+                'Access token Keycloak sudah tidak valid.'
+            );
+        }
+
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak device session error: '
+                'Keycloak device error: '
                 .$response->status()
                 .' - '
+                .$response->body()
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    public function refreshUserToken(string $refreshToken): array
+    {
+        $response = Http::asForm()
+            ->timeout(10)
+            ->post(
+                $this->baseUrl
+                .'/realms/'
+                .$this->realm
+                .'/protocol/openid-connect/token',
+                [
+                    'grant_type' => 'refresh_token',
+                    'client_id' => config('services.keycloak.client_id'),
+                    'client_secret' => config('services.keycloak.client_secret'),
+                    'refresh_token' => $refreshToken,
+                ]
+            );
+
+        if ($response->status() === 400) {
+            throw new RuntimeException(
+                'Refresh token Keycloak sudah tidak valid atau sudah expired.'
+            );
+        }
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak refresh token error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+
+        $accessToken = $response->json('access_token');
+
+        if (! $accessToken) {
+            throw new RuntimeException(
+                'Access token baru tidak ditemukan dari Keycloak: '
                 .$response->body()
             );
         }

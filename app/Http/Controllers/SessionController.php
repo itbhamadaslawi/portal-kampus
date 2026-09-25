@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\KeycloakService;
+use App\Services\KeycloakUnauthorizedException;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,42 @@ class SessionController extends Controller
                     $devices = $keycloak->getUserDevices(
                         $user['access_token']
                     );
+                } catch (KeycloakUnauthorizedException $e) {
+                    if (! empty($user['refresh_token'])) {
+                        try {
+                            $tokenResponse = $keycloak->refreshUserToken(
+                                $user['refresh_token']
+                            );
+
+                            $newAccessToken =
+                                $tokenResponse['access_token']
+                                ?? null;
+
+                            $newRefreshToken =
+                                $tokenResponse['refresh_token']
+                                ?? $user['refresh_token'];
+
+                            if ($newAccessToken) {
+                                $user['access_token'] =
+                                    $newAccessToken;
+
+                                $user['refresh_token'] =
+                                    $newRefreshToken;
+
+                                session([
+                                    'keycloak_user' => $user,
+                                ]);
+
+                                $devices =
+                                    $keycloak->getUserDevices(
+                                        $newAccessToken
+                                    );
+                            }
+                        } catch (\Throwable $refreshException) {
+                            report($refreshException);
+                            $devices = [];
+                        }
+                    }
                 } catch (\Throwable $e) {
                     report($e);
                     $devices = [];
@@ -77,9 +114,7 @@ class SessionController extends Controller
 
                     return [
                         'id' => $session['id'] ?? null,
-
                         'application' => $application,
-
                         'clients' => $clientNames->toArray(),
 
                         'ip' => $session['ipAddress']
@@ -87,13 +122,9 @@ class SessionController extends Controller
                             ?? null,
 
                         'device' => $device['device'] ?? null,
-
                         'browser' => $deviceSession['browser'] ?? null,
-
                         'os' => $device['os'] ?? null,
-
                         'os_version' => $device['osVersion'] ?? null,
-
                         'mobile' => $device['mobile'] ?? false,
 
                         'current' => $deviceSession['current']

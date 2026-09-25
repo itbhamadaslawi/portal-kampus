@@ -49,7 +49,7 @@ class AuthController extends Controller
 
         $accessToken = $accessTokenResponse['access_token'] ?? null;
 
-        
+        $refreshToken = $accessTokenResponse['refresh_token'] ?? null;
 
         $username = $keycloakUser->user['preferred_username']
             ?? $keycloakUser->getNickname();
@@ -68,6 +68,7 @@ class AuthController extends Controller
                 'groups' => $keycloakUser->user['groups'] ?? [],
                 'id_token' => $idToken,
                 'access_token' => $accessToken,
+                'refresh_token' => $refreshToken,
             ],
         ]);
 
