@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'keycloak.auth' => KeycloakAuthenticated::class,
         ]);
+
+        $middleware->preventRequestForgery(except: [
+    'auth/backchannel-logout',
+]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 

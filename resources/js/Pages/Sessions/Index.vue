@@ -493,7 +493,10 @@ onMounted(() => {
                             </div>
                         </div>
 
-                        <div class="shrink-0 sm:pt-0">
+                        <div
+                            v-if="!session.current"
+                            class="shrink-0 sm:pt-0"
+                        >
                             <button
                                 type="button"
                                 :disabled="killingSession === session.id"

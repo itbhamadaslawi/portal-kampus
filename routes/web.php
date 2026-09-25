@@ -43,6 +43,11 @@ Route::get('/auth/callback', [
     'callback',
 ])->name('auth.callback');
 
+Route::post('/auth/backchannel-logout', [
+    AuthController::class,
+    'backchannelLogout',
+])->name('auth.backchannel-logout');
+
 
 /*
 |--------------------------------------------------------------------------

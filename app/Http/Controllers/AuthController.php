@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KeycloakSession;
+use App\Services\KeycloakLogoutService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -51,6 +54,8 @@ class AuthController extends Controller
 
         $refreshToken = $accessTokenResponse['refresh_token'] ?? null;
 
+        $keycloakSid = $accessTokenResponse['session_state'] ?? null;
+
         $username = $keycloakUser->user['preferred_username']
             ?? $keycloakUser->getNickname();
 
@@ -73,6 +78,18 @@ class AuthController extends Controller
         ]);
 
         $request->session()->regenerate();
+
+        if ($keycloakSid) {
+            KeycloakSession::updateOrCreate(
+                [
+                    'keycloak_sid' => $keycloakSid,
+                ],
+                [
+                    'laravel_session_id' => $request->session()->getId(),
+                    'user_id' => $keycloakUser->getId(),
+                ]
+            );
+        }
 
         if (session()->pull('sso_popup')) {
             return Inertia::render('Auth/SsoCallback');
@@ -140,5 +157,52 @@ class AuthController extends Controller
         */
 
         return redirect()->route('login');
+    }
+
+    public function backchannelLogout(
+        Request $request,
+        KeycloakLogoutService $keycloakLogoutService
+    ) {
+        try {
+            $logoutToken = $request->input('logout_token');
+
+            if (! $logoutToken) {
+                return response()->json([
+                    'message' => 'Logout token tidak ditemukan.',
+                ], 400);
+            }
+
+            $claims = $keycloakLogoutService
+                ->decodeAndValidateLogoutToken($logoutToken);
+
+            $sid = $claims['sid'] ?? null;
+
+            if (! $sid) {
+                return response()->noContent();
+            }
+
+            $keycloakSession = KeycloakSession::where(
+                'keycloak_sid',
+                $sid
+            )->first();
+
+            if (! $keycloakSession) {
+                return response()->noContent();
+            }
+
+            $laravelSessionId = $keycloakSession->laravel_session_id;
+
+            $keycloakSession->delete();
+
+            DB::table('sessions')
+                ->where('id', $laravelSessionId)
+                ->delete();
+
+            return response()->noContent();
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Backchannel logout gagal.',
+            ], 400);
+        }
     }
 }
