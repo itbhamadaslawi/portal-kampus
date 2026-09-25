@@ -163,4 +163,48 @@ class SessionController extends Controller
             ], 500);
         }
     }
+
+    public function destroy(
+    Request $request,
+    KeycloakService $keycloak,
+    string $sessionId
+): JsonResponse {
+    $user = session('keycloak_user');
+
+    if (! $user || empty($user['id'])) {
+        return response()->json([
+            'message' => 'User belum login.',
+        ], 401);
+    }
+
+    try {
+        $sessions = $keycloak->getUserSessions(
+            $user['id']
+        );
+
+        $session = collect($sessions)
+            ->firstWhere('id', $sessionId);
+
+        if (! $session) {
+            return response()->json([
+                'message' => 'Sesi tidak ditemukan atau sudah tidak aktif.',
+            ], 404);
+        }
+
+        $keycloak->logoutUserSession(
+            $user['id'],
+            $sessionId
+        );
+
+        return response()->json([
+            'message' => 'Sesi berhasil dihentikan.',
+        ]);
+    } catch (\Throwable $e) {
+        report($e);
+
+        return response()->json([
+            'message' => 'Sesi tidak dapat dihentikan saat ini.',
+        ], 500);
+    }
+}
 }

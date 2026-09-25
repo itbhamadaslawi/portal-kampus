@@ -161,4 +161,30 @@ class KeycloakService
 
         return $response->json() ?? [];
     }
+
+    public function logoutUserSession(string $userId, string $sessionId): void
+{
+    $token = $this->getAdminToken();
+
+    $response = Http::withToken($token)
+        ->acceptJson()
+        ->timeout(10)
+        ->delete(
+            $this->baseUrl
+            . '/admin/realms/'
+            . $this->realm
+            . '/sessions/'
+            . urlencode($sessionId)
+        );
+
+    if ($response->failed()) {
+        throw new RuntimeException(
+            'Keycloak logout session error: '
+            . $response->status()
+            . ' - '
+            . $response->body()
+        );
+    }
+}
+
 }

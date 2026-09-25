@@ -72,6 +72,11 @@ Route::middleware('keycloak.auth')->group(function () {
         'index',
     ])->name('sessions.api');
 
+    Route::delete('/api/sesi/{sessionId}', [
+    SessionController::class,
+    'destroy',
+])->name('sessions.destroy');
+
 
 });
 
