@@ -30,9 +30,14 @@ class SessionController extends Controller
             $devices = [];
 
             if (! empty($user['access_token'])) {
-                $devices = $keycloak->getUserDevices(
-                    $user['access_token']
-                );
+                try {
+                    $devices = $keycloak->getUserDevices(
+                        $user['access_token']
+                    );
+                } catch (\Throwable $e) {
+                    report($e);
+                    $devices = [];
+                }
             }
 
             $devicesBySession = collect($devices)
@@ -53,10 +58,8 @@ class SessionController extends Controller
                     $clients = $session['clients'] ?? [];
 
                     $clientNames = collect($clients)
-                        ->map(function ($client) {
-                            return $client;
-                        })
                         ->filter()
+                        ->values()
                         ->unique()
                         ->values();
 
@@ -65,7 +68,7 @@ class SessionController extends Controller
                         : $clientNames->implode(', ');
 
                     $deviceData = $devicesBySession->get(
-                        $session['id'],
+                        $session['id'] ?? null,
                         []
                     );
 
@@ -77,7 +80,7 @@ class SessionController extends Controller
 
                         'application' => $application,
 
-                        'clients' => $clientNames->values()->toArray(),
+                        'clients' => $clientNames->toArray(),
 
                         'ip' => $session['ipAddress']
                             ?? $deviceSession['ipAddress']
