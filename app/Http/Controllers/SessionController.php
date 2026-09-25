@@ -199,12 +199,12 @@ class SessionController extends Controller
         return response()->json([
             'message' => 'Sesi berhasil dihentikan.',
         ]);
-    } catch (\Throwable $e) {
-        report($e);
+    }  catch (\Throwable $e) {
+    report($e);
 
-        return response()->json([
-            'message' => 'Sesi tidak dapat dihentikan saat ini.',
-        ], 500);
-    }
+    return response()->json([
+        'message' => $e->getMessage(),
+    ], 500);
+}
 }
 }
