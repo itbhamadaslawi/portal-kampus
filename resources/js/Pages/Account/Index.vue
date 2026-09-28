@@ -261,7 +261,7 @@ const saveProfile = async () => {
 
                     <button
                         type="button"
-                        class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-emerald-700"
+                        class="cursor-pointer inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white transition hover:bg-emerald-700"
                         @click="openEditModal"
                     >
                         <svg

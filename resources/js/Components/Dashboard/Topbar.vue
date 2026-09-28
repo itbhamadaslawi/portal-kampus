@@ -124,7 +124,7 @@ const userInitial = () => {
             <!-- RIGHT USER -->
             <div class="relative">
 
-                <button type="button" class="flex items-center gap-3
+                <button type="button" class="flex items-center gap-3 cursor-pointer
                            rounded-xl px-2 py-1.5
                            hover:bg-gray-50" @click="
                             userMenuOpen = !userMenuOpen
@@ -216,7 +216,7 @@ const userInitial = () => {
 
 
                     <!-- LOGOUT -->
-                    <button type="button" class="flex w-full items-center
+                    <button type="button" class="flex w-full items-center cursor-pointer
                                gap-3 px-4 py-3
                                text-left text-sm
                                text-red-600
