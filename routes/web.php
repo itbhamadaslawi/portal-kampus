@@ -82,6 +82,11 @@ Route::middleware('keycloak.auth')->group(function () {
     'destroy',
 ])->name('sessions.destroy');
 
+Route::put('/account/profile', [
+    AccountController::class,
+    'update',
+])->name('account.profile.update');
+
 
 });
 

@@ -163,28 +163,115 @@ class KeycloakService
     }
 
     public function logoutUserSession(string $userId, string $sessionId): void
-{
-    $token = $this->getAdminToken();
+    {
+        $token = $this->getAdminToken();
 
-    $response = Http::withToken($token)
-        ->acceptJson()
-        ->timeout(10)
-        ->delete(
-            $this->baseUrl
-            . '/admin/realms/'
-            . $this->realm
-            . '/sessions/'
-            . urlencode($sessionId)
-        );
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->delete(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/sessions/'
+                .urlencode($sessionId)
+            );
 
-    if ($response->failed()) {
-        throw new RuntimeException(
-            'Keycloak logout session error: '
-            . $response->status()
-            . ' - '
-            . $response->body()
-        );
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak logout session error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
     }
-}
 
+    public function getUser(string $userId): array
+    {
+        $token = $this->getAdminToken();
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->get(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId)
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak user error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    public function updateUser(
+        string $userId,
+        array $data
+    ): array {
+        $token = $this->getAdminToken();
+
+        $user = $this->getUser($userId);
+
+        $attributes = $user['attributes'] ?? [];
+
+        if (array_key_exists('nickname', $data)) {
+            $nickname = trim(
+                (string) ($data['nickname'] ?? '')
+            );
+
+            if ($nickname === '') {
+                unset($attributes['nickname']);
+            } else {
+                $attributes['nickname'] = [
+                    $nickname,
+                ];
+            }
+        }
+
+        $payload = [
+            'firstName' => trim(
+                (string) $data['firstName']
+            ),
+            'lastName' => trim(
+                (string) ($data['lastName'] ?? '')
+            ),
+            'email' => trim(
+                (string) $data['email']
+            ),
+            'attributes' => $attributes,
+        ];
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->put(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId),
+                $payload
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak update user error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+
+        return $this->getUser($userId);
+    }
 }
