@@ -26,7 +26,7 @@ const isActive = (url) => {
 }
 
 const isAdmin = () => {
-    return page.props.auth?.user?.role === 'admin'
+    return page.props.auth?.user?.role?.toLowerCase() === 'admin'
 }
 </script>
 
