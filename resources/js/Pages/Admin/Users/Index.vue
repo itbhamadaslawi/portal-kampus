@@ -1111,7 +1111,7 @@ onBeforeUnmount(() => {
                         <p
                             class="mt-1 text-sm text-gray-500"
                         >
-                            Informasi pengguna dari Keycloak.
+                            Informasi pengguna dari SSO.
                         </p>
                     </div>
 

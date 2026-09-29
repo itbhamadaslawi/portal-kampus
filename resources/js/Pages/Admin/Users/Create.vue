@@ -194,7 +194,7 @@ onMounted(() => {
                     </h1>
 
                     <p class="mt-1 text-sm text-gray-500">
-                        Tambahkan akun pengguna baru ke Keycloak.
+                        Tambahkan akun pengguna baru ke SSO.
                     </p>
                 </div>
 

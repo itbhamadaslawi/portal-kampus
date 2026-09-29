@@ -3158,44 +3158,15 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .applications-table-wrapper {
-    min-width: 0;
-}
-
-:deep(#applications-table) {
     width: 100% !important;
-    border-collapse: collapse;
+    min-width: 0 !important;
 }
 
-:deep(#applications-table thead th) {
-    height: 44px;
-    border-bottom: 1px solid #e5e7eb;
-    background: #f9fafb;
-    padding: 0.75rem 1rem;
-    color: #6b7280;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-align: left;
-    white-space: nowrap;
-}
-
-:deep(#applications-table tbody td) {
-    border-bottom: 1px solid #f3f4f6;
-    padding: 0.85rem 1rem;
-    vertical-align: middle;
-    font-size: 0.875rem;
-}
-
-:deep(#applications-table tbody tr:last-child td) {
-    border-bottom: 0;
-}
-
-:deep(#applications-table tbody tr) {
-    transition:
-        background-color 0.15s ease;
-}
-
-:deep(#applications-table tbody tr:hover) {
-    background: #fafafa;
+/* DataTables */
+:deep(.dt-container) {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
 }
 
 :deep(.dt-layout-row) {
@@ -3203,7 +3174,10 @@ onBeforeUnmount(() => {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    width: 100%;
+
+    width: 100% !important;
+    min-width: 100% !important;
+
     margin: 0;
     padding: 0.75rem 0;
 }
@@ -3219,9 +3193,136 @@ onBeforeUnmount(() => {
 :deep(.dt-layout-cell) {
     display: flex;
     align-items: center;
-    min-width: 0;
+    min-width: 0 !important;
 }
 
+:deep(.dt-layout-table) {
+    display: block !important;
+
+    position: relative;
+
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+:deep(.dt-layout-table > table) {
+    display: table !important;
+
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+
+    table-layout: auto !important;
+}
+
+/* Table */
+:deep(#applications-table) {
+    display: table !important;
+
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+
+    border-collapse: collapse;
+}
+
+/* Header */
+:deep(#applications-table thead) {
+    width: 100% !important;
+}
+
+:deep(#applications-table thead tr) {
+    width: 100% !important;
+}
+
+:deep(#applications-table thead th) {
+    height: 44px;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    background: #f9fafb;
+
+    padding: 0.75rem 1rem;
+
+    color: #6b7280;
+
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+/* Body */
+:deep(#applications-table tbody) {
+    width: 100% !important;
+}
+
+:deep(#applications-table tbody tr) {
+    width: 100% !important;
+
+    transition:
+        background-color 0.15s ease;
+}
+
+:deep(#applications-table tbody tr:hover) {
+    background: #fafafa;
+}
+
+:deep(#applications-table tbody td) {
+    border-bottom: 1px solid #f3f4f6;
+
+    padding: 0.85rem 1rem;
+
+    vertical-align: middle;
+
+    font-size: 0.875rem;
+}
+
+:deep(#applications-table tbody tr:last-child td) {
+    border-bottom: 0;
+}
+
+/* Empty state */
+:deep(#applications-table tbody tr.dt-empty) {
+    width: 100% !important;
+}
+
+:deep(#applications-table tbody td.dt-empty) {
+    display: table-cell !important;
+
+    width: 100% !important;
+    min-width: 100% !important;
+
+    height: 160px !important;
+
+    padding: 3rem 1rem !important;
+
+    text-align: center !important;
+    vertical-align: middle !important;
+
+    color: #6b7280 !important;
+
+    font-size: 0.875rem !important;
+
+    white-space: normal !important;
+}
+
+:deep(#applications-table tbody td[colspan]) {
+    width: 100% !important;
+    min-width: 100% !important;
+}
+
+/* Length */
 :deep(.dt-length) {
     display: flex;
     align-items: center;
@@ -3229,16 +3330,24 @@ onBeforeUnmount(() => {
 
 :deep(.dt-length select) {
     min-width: 70px;
+
     cursor: pointer;
+
     border: 1px solid #d1d5db;
     border-radius: 0.5rem;
+
     background: white;
+
     padding: 0.45rem 2rem 0.45rem 0.7rem;
+
     color: #374151;
+
     font-size: 0.875rem;
+
     outline: none;
 }
 
+/* Search */
 :deep(.dt-search) {
     display: flex;
     align-items: center;
@@ -3246,13 +3355,20 @@ onBeforeUnmount(() => {
 
 :deep(.dt-search input) {
     width: 240px;
+
     border: 1px solid #d1d5db;
     border-radius: 0.5rem;
+
     background: white;
+
     padding: 0.55rem 0.75rem;
+
     color: #374151;
+
     font-size: 0.875rem;
+
     outline: none;
+
     transition:
         border-color 0.15s ease,
         box-shadow 0.15s ease;
@@ -3260,48 +3376,65 @@ onBeforeUnmount(() => {
 
 :deep(.dt-search input:focus) {
     border-color: #9ca3af;
-    box-shadow: 0 0 0 2px rgb(156 163 175 / 15%);
+
+    box-shadow:
+        0 0 0 2px rgb(156 163 175 / 15%);
 }
 
+/* Info */
 :deep(.dt-info) {
     color: #6b7280;
+
     font-size: 0.8rem;
 }
 
+/* Pagination */
 :deep(.dt-paging) {
     display: flex;
     align-items: center;
+
     gap: 0.25rem;
 }
 
 :deep(.dt-paging-button) {
     min-width: 34px;
     height: 34px;
+
     cursor: pointer !important;
+
     border: 1px solid transparent !important;
     border-radius: 0.5rem !important;
+
     background: transparent !important;
+
     color: #6b7280 !important;
+
     font-size: 0.8rem !important;
 }
 
 :deep(.dt-paging-button:hover) {
     border-color: #e5e7eb !important;
+
     background: #f9fafb !important;
+
     color: #111827 !important;
 }
 
 :deep(.dt-paging-button.current) {
     border-color: #111827 !important;
+
     background: #111827 !important;
+
     color: white !important;
 }
 
 :deep(.dt-paging-button.disabled) {
     cursor: not-allowed !important;
+
     opacity: 0.45;
 }
 
+/* Ordering */
 :deep(.dt-orderable-asc),
 :deep(.dt-orderable-desc) {
     cursor: pointer;
@@ -3311,18 +3444,25 @@ onBeforeUnmount(() => {
     opacity: 0.5;
 }
 
+/* Loading */
 :deep(.datatable-loading) {
     display: inline-flex;
+
     align-items: center;
+
     gap: 0.5rem;
 }
 
 :deep(.datatable-spinner) {
     width: 16px;
     height: 16px;
+
     border: 2px solid #d1d5db;
+
     border-top-color: #374151;
+
     border-radius: 9999px;
+
     animation: datatable-spin 0.7s linear infinite;
 }
 
@@ -3332,17 +3472,24 @@ onBeforeUnmount(() => {
     }
 }
 
+/* Skeleton */
 .skeleton-shimmer {
     position: relative;
+
     overflow: hidden;
+
     background: #f1f3f5;
 }
 
 .skeleton-shimmer::after {
     position: absolute;
+
     inset: 0;
+
     content: '';
+
     transform: translateX(-100%);
+
     background: linear-gradient(
         90deg,
         transparent 0%,
@@ -3351,6 +3498,7 @@ onBeforeUnmount(() => {
         rgb(255 255 255 / 45%) 60%,
         transparent 100%
     );
+
     animation: skeleton-shimmer 1.5s infinite;
 }
 
@@ -3360,6 +3508,7 @@ onBeforeUnmount(() => {
     }
 }
 
+/* Tablet / Mobile */
 @media (max-width: 768px) {
     :deep(.dt-layout-row) {
         flex-wrap: wrap;
@@ -3369,15 +3518,12 @@ onBeforeUnmount(() => {
         width: 100%;
     }
 
-    :deep(.dt-search input) {
-        width: 100%;
-    }
-
     :deep(.dt-search) {
         width: 100%;
     }
 
     :deep(.dt-search input) {
+        width: 100%;
         flex: 1;
     }
 }
