@@ -99,6 +99,11 @@ Route::middleware('keycloak.auth')->group(function () {
                 'data',
             ])->name('users.data');
 
+            Route::get('/users/{userId}/json', [
+                UserController::class,
+                'json',
+            ])->name('users.json');
+
             Route::get('/users/create', [
                 UserController::class,
                 'create',

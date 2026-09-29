@@ -793,15 +793,14 @@ const loadTable = async () => {
                                         ${name}
                                     </div>
 
-                                    ${
-                                        description
-                                            ? `
+                                    ${description
+                                ? `
                                                 <div class="mt-0.5 max-w-[320px] truncate text-xs text-gray-500">
                                                     ${description}
                                                 </div>
                                             `
-                                            : ''
-                                    }
+                                : ''
+                            }
                                 </div>
                             </div>
                         `
@@ -981,16 +980,14 @@ const loadTable = async () => {
                                     data-action="status"
                                     data-id="${row.id}"
                                     data-status="${row.is_active ? 1 : 0}"
-                                    class="cursor-pointer rounded-lg p-2 ${
-                                        row.is_active
-                                            ? 'text-orange-500 hover:bg-orange-50 hover:text-orange-700'
-                                            : 'text-green-500 hover:bg-green-50 hover:text-green-700'
-                                    }"
-                                    title="${
-                                        row.is_active
-                                            ? 'Nonaktifkan'
-                                            : 'Aktifkan'
-                                    }"
+                                    class="cursor-pointer rounded-lg p-2 ${row.is_active
+                                ? 'text-orange-500 hover:bg-orange-50 hover:text-orange-700'
+                                : 'text-green-500 hover:bg-green-50 hover:text-green-700'
+                            }"
+                                    title="${row.is_active
+                                ? 'Nonaktifkan'
+                                : 'Aktifkan'
+                            }"
                                 >
                                     <svg
                                         width="18"
@@ -1002,18 +999,17 @@ const loadTable = async () => {
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                     >
-                                        ${
-                                            row.is_active
-                                                ? `
+                                        ${row.is_active
+                                ? `
                                                     <rect x="3" y="5" width="18" height="14" rx="2"/>
                                                     <path d="M8 9h8"/>
                                                     <path d="M8 13h5"/>
                                                 `
-                                                : `
+                                : `
                                                     <path d="M9 12l2 2 4-4"/>
                                                     <circle cx="12" cy="12" r="9"/>
                                                 `
-                                        }
+                            }
                                     </svg>
                                 </button>
 
@@ -1367,8 +1363,8 @@ const saveApplication = async () => {
                 Array.isArray(firstError)
                     ? firstError[0]
                     : error.response?.data
-                          ?.message ||
-                      'Data aplikasi belum valid.'
+                        ?.message ||
+                    'Data aplikasi belum valid.'
         } else {
             errorMessage.value =
                 error.response?.data
@@ -1617,7 +1613,7 @@ const loadAvailableGroups = async () => {
         errorMessage.value =
             error.response?.data
                 ?.message ||
-            'Group Keycloak gagal dimuat.'
+            'Group SSO gagal dimuat.'
     } finally {
         loadingGroups.value = false
     }
@@ -1825,31 +1821,17 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+
     <Head title="Applications" />
 
     <DashboardLayout>
-        <div
-            class="w-full min-w-0 space-y-6"
-        >
-            <div
-                v-if="successMessage"
-                class="flex items-start justify-between gap-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700"
-            >
-                <div
-                    class="flex items-start gap-3"
-                >
-                    <svg
-                        class="mt-0.5 h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="M20 6 9 17l-5-5"
-                        />
+        <div class="w-full min-w-0 space-y-6">
+            <div v-if="successMessage"
+                class="flex items-start justify-between gap-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                <div class="flex items-start gap-3">
+                    <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6 9 17l-5-5" />
                     </svg>
 
                     <span>
@@ -1857,44 +1839,21 @@ onBeforeUnmount(() => {
                     </span>
                 </div>
 
-                <button
-                    type="button"
-                    class="cursor-pointer text-green-500 hover:text-green-700"
-                    @click="
-                        successMessage = ''
-                    "
-                >
+                <button type="button" class="cursor-pointer text-green-500 hover:text-green-700" @click="
+                    successMessage = ''
+                    ">
                     ×
                 </button>
             </div>
 
-            <div
-                v-if="errorMessage"
-                class="flex items-start justify-between gap-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-                <div
-                    class="flex items-start gap-3"
-                >
-                    <svg
-                        class="mt-0.5 h-5 w-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <circle
-                            cx="12"
-                            cy="12"
-                            r="10"
-                        />
-                        <path
-                            d="M12 8v4"
-                        />
-                        <path
-                            d="M12 16h.01"
-                        />
+            <div v-if="errorMessage"
+                class="flex items-start justify-between gap-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div class="flex items-start gap-3">
+                    <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4" />
+                        <path d="M12 16h.01" />
                     </svg>
 
                     <span>
@@ -1902,50 +1861,31 @@ onBeforeUnmount(() => {
                     </span>
                 </div>
 
-                <button
-                    type="button"
-                    class="cursor-pointer text-red-500 hover:text-red-700"
-                    @click="
-                        errorMessage = ''
-                    "
-                >
+                <button type="button" class="cursor-pointer text-red-500 hover:text-red-700" @click="
+                    errorMessage = ''
+                    ">
                     ×
                 </button>
             </div>
 
-            <div
-                class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-            >
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1
-                        class="text-xl font-semibold text-gray-800"
-                    >
+                    <h1 class="text-xl font-semibold text-gray-800">
                         Applications
                     </h1>
 
-                    <p
-                        class="mt-1 text-sm text-gray-500"
-                    >
+                    <p class="mt-1 text-sm text-gray-500">
                         Kelola aplikasi yang tersedia di portal.
                     </p>
                 </div>
 
-                <button
-                    type="button"
+                <button type="button"
                     class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
                     @click="
                         addApplication
-                    "
-                >
-                    <svg
-                        class="h-4 w-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
+                    ">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 5v14" />
                         <path d="M5 12h14" />
                     </svg>
@@ -1954,20 +1894,10 @@ onBeforeUnmount(() => {
                 </button>
             </div>
 
-            <div
-                class="w-full min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
-            >
-                <div
-                    class="w-full min-w-0 px-4 py-4 sm:px-6"
-                >
-                    <div
-                        class="applications-table-wrapper relative w-full min-w-0"
-                    >
-                        <table
-                            ref="table"
-                            id="applications-table"
-                            class="w-full"
-                        >
+            <div class="w-full min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                <div class="w-full min-w-0 px-4 py-4 sm:px-6">
+                    <div class="applications-table-wrapper relative w-full min-w-0">
+                        <table ref="table" id="applications-table" class="w-full">
                             <thead>
                                 <tr>
                                     <th>
@@ -1995,100 +1925,54 @@ onBeforeUnmount(() => {
                             <tbody></tbody>
                         </table>
 
-                        <div
-                            v-if="
-                                skeletonLoading
-                            "
-                            class="pointer-events-none absolute inset-0 top-[44px] z-30 min-h-[520px] overflow-hidden bg-white/95"
-                        >
-                            <div
-                                class="absolute inset-x-0 top-4 z-20 flex items-center justify-center"
-                            >
+                        <div v-if="
+                            skeletonLoading
+                        "
+                            class="pointer-events-none absolute inset-0 top-[44px] z-30 min-h-[520px] overflow-hidden bg-white/95">
+                            <div class="absolute inset-x-0 top-4 z-20 flex items-center justify-center">
                                 <div
-                                    class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-sm"
-                                >
+                                    class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-sm">
                                     <span
-                                        class="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700"
-                                    ></span>
+                                        class="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-700"></span>
 
                                     Memuat data...
                                 </div>
                             </div>
 
-                            <div
-                                v-for="row in 8"
-                                :key="row"
-                                class="h-[68px] border-b border-gray-100 px-4"
-                            >
-                                <div
-                                    class="flex h-full items-center gap-4"
-                                >
-                                    <div
-                                        class="flex min-w-0 flex-[2] items-center gap-3"
-                                    >
-                                        <div
-                                            class="skeleton-shimmer h-10 w-10 shrink-0 rounded-lg"
-                                        ></div>
+                            <div v-for="row in 8" :key="row" class="h-[68px] border-b border-gray-100 px-4">
+                                <div class="flex h-full items-center gap-4">
+                                    <div class="flex min-w-0 flex-[2] items-center gap-3">
+                                        <div class="skeleton-shimmer h-10 w-10 shrink-0 rounded-lg"></div>
 
-                                        <div
-                                            class="min-w-0 flex-1 space-y-2"
-                                        >
-                                            <div
-                                                class="skeleton-shimmer h-3.5 w-36 rounded"
-                                            ></div>
+                                        <div class="min-w-0 flex-1 space-y-2">
+                                            <div class="skeleton-shimmer h-3.5 w-36 rounded"></div>
 
-                                            <div
-                                                class="skeleton-shimmer h-3 w-28 rounded"
-                                            ></div>
+                                            <div class="skeleton-shimmer h-3 w-28 rounded"></div>
                                         </div>
                                     </div>
 
-                                    <div
-                                        class="hidden flex-1 md:block"
-                                    >
-                                        <div
-                                            class="skeleton-shimmer h-3.5 w-20 rounded"
-                                        ></div>
+                                    <div class="hidden flex-1 md:block">
+                                        <div class="skeleton-shimmer h-3.5 w-20 rounded"></div>
                                     </div>
 
-                                    <div
-                                        class="hidden flex-[1.5] lg:block"
-                                    >
-                                        <div
-                                            class="skeleton-shimmer h-3.5 w-48 rounded"
-                                        ></div>
+                                    <div class="hidden flex-[1.5] lg:block">
+                                        <div class="skeleton-shimmer h-3.5 w-48 rounded"></div>
                                     </div>
 
-                                    <div
-                                        class="hidden w-[100px] sm:block"
-                                    >
-                                        <div
-                                            class="skeleton-shimmer h-6 w-16 rounded-full"
-                                        ></div>
+                                    <div class="hidden w-[100px] sm:block">
+                                        <div class="skeleton-shimmer h-6 w-16 rounded-full"></div>
                                     </div>
 
-                                    <div
-                                        class="flex w-[190px] shrink-0 justify-end gap-1"
-                                    >
-                                        <div
-                                            class="skeleton-shimmer h-8 w-8 rounded-lg"
-                                        ></div>
+                                    <div class="flex w-[190px] shrink-0 justify-end gap-1">
+                                        <div class="skeleton-shimmer h-8 w-8 rounded-lg"></div>
 
-                                        <div
-                                            class="skeleton-shimmer h-8 w-8 rounded-lg"
-                                        ></div>
+                                        <div class="skeleton-shimmer h-8 w-8 rounded-lg"></div>
 
-                                        <div
-                                            class="skeleton-shimmer h-8 w-8 rounded-lg"
-                                        ></div>
+                                        <div class="skeleton-shimmer h-8 w-8 rounded-lg"></div>
 
-                                        <div
-                                            class="skeleton-shimmer h-8 w-8 rounded-lg"
-                                        ></div>
+                                        <div class="skeleton-shimmer h-8 w-8 rounded-lg"></div>
 
-                                        <div
-                                            class="skeleton-shimmer h-8 w-8 rounded-lg"
-                                        ></div>
+                                        <div class="skeleton-shimmer h-8 w-8 rounded-lg"></div>
                                     </div>
                                 </div>
                             </div>
@@ -2097,204 +1981,119 @@ onBeforeUnmount(() => {
                 </div>
             </div>
 
-            <div
-                v-if="showFormModal"
-                class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4"
+            <div v-if="showFormModal" class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4"
                 @click.self="
                     closeFormModal
-                "
-            >
-                <div
-                    class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
-                >
-                    <div
-                        class="flex items-center justify-between border-b border-gray-200 px-6 py-4"
-                    >
+                ">
+                <div class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+                    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                         <div>
-                            <h2
-                                class="text-lg font-semibold text-gray-900"
-                            >
+                            <h2 class="text-lg font-semibold text-gray-900">
                                 {{
                                     formMode ===
-                                    'edit'
+                                        'edit'
                                         ? 'Edit Aplikasi'
                                         : 'Tambah Aplikasi'
                                 }}
                             </h2>
 
-                            <p
-                                class="mt-1 text-sm text-gray-500"
-                            >
+                            <p class="mt-1 text-sm text-gray-500">
                                 {{
                                     formMode ===
-                                    'edit'
+                                        'edit'
                                         ? 'Perbarui informasi aplikasi.'
                                         : 'Tambahkan aplikasi baru ke portal.'
                                 }}
                             </p>
                         </div>
 
-                        <button
-                            type="button"
+                        <button type="button"
                             class="cursor-pointer rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
                             @click="
                                 closeFormModal
-                            "
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.8"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path
-                                    d="M18 6 6 18"
-                                />
-                                <path
-                                    d="m6 6 12 12"
-                                />
+                            ">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
                             </svg>
                         </button>
                     </div>
 
-                    <div
-                        class="min-h-0 flex-1 overflow-y-auto px-6 py-5"
-                    >
-                        <div
-                            v-if="loadingForm"
-                            class="space-y-5"
-                        >
-                            <div
-                                v-for="item in 6"
-                                :key="item"
-                                class="space-y-2"
-                            >
-                                <div
-                                    class="skeleton-shimmer h-3.5 w-24 rounded"
-                                ></div>
+                    <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+                        <div v-if="loadingForm" class="space-y-5">
+                            <div v-for="item in 6" :key="item" class="space-y-2">
+                                <div class="skeleton-shimmer h-3.5 w-24 rounded"></div>
 
-                                <div
-                                    class="skeleton-shimmer h-10 w-full rounded-lg"
-                                ></div>
+                                <div class="skeleton-shimmer h-10 w-full rounded-lg"></div>
                             </div>
                         </div>
 
-                        <form
-                            v-else
-                            class="space-y-5"
-                            @submit.prevent="
-                                saveApplication
-                            "
-                        >
-                            <div
-                                class="grid grid-cols-1 gap-5 md:grid-cols-2"
-                            >
+                        <form v-else class="space-y-5" @submit.prevent="
+                            saveApplication
+                        ">
+                            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                                 <div>
-                                    <label
-                                        class="mb-1.5 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700">
                                         Nama Aplikasi
                                     </label>
 
-                                    <input
-                                        v-model="
-                                            form.name
-                                        "
-                                        type="text"
-                                        required
+                                    <input v-model="form.name
+                                        " type="text" required
                                         class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-100"
-                                        placeholder="Contoh: Sistem Akademik"
-                                    />
+                                        placeholder="Contoh: Sistem Akademik" />
                                 </div>
 
                                 <div>
-                                    <label
-                                        class="mb-1.5 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700">
                                         Code
                                     </label>
 
-                                    <input
-                                        v-model="
-                                            form.code
-                                        "
-                                        type="text"
-                                        required
+                                    <input v-model="form.code
+                                        " type="text" required
                                         class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-100"
-                                        placeholder="Contoh: siakad"
-                                    />
+                                        placeholder="Contoh: siakad" />
                                 </div>
                             </div>
 
                             <div>
-                                <label
-                                    class="mb-1.5 block text-sm font-medium text-gray-700"
-                                >
+                                <label class="mb-1.5 block text-sm font-medium text-gray-700">
                                     Deskripsi
                                 </label>
 
-                                <textarea
-                                    v-model="
-                                        form.description
-                                    "
-                                    rows="3"
+                                <textarea v-model="form.description
+                                    " rows="3"
                                     class="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-100"
-                                    placeholder="Deskripsi aplikasi"
-                                ></textarea>
+                                    placeholder="Deskripsi aplikasi"></textarea>
                             </div>
 
                             <div>
-                                <label
-                                    class="mb-1.5 block text-sm font-medium text-gray-700"
-                                >
+                                <label class="mb-1.5 block text-sm font-medium text-gray-700">
                                     URL
                                 </label>
 
-                                <input
-                                    v-model="
-                                        form.url
-                                    "
-                                    type="url"
-                                    required
+                                <input v-model="form.url
+                                    " type="url" required
                                     class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-100"
-                                    placeholder="https://..."
-                                />
+                                    placeholder="https://..." />
                             </div>
 
-                            <div
-                                class="grid grid-cols-1 gap-5 md:grid-cols-2"
-                            >
+                            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                                 <div>
-                                    <label
-                                        class="mb-1.5 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700">
                                         Icon
                                     </label>
 
-                                    <select
-                                        v-model="
-                                            form.icon
+                                    <select v-model="form.icon
                                         "
-                                        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-100"
-                                    >
-                                        <option
-                                            value=""
-                                        >
+                                        class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-100">
+                                        <option value="">
                                             Pilih Icon
                                         </option>
 
-                                        <option
-                                            v-for="icon in iconOptions"
-                                            :key="
-                                                icon.value
-                                            "
-                                            :value="
-                                                icon.value
-                                            "
-                                        >
+                                        <option v-for="icon in iconOptions" :key="icon.value
+                                            " :value="icon.value
+                                                ">
                                             {{
                                                 icon.label
                                             }}
@@ -2302,36 +2101,22 @@ onBeforeUnmount(() => {
                                     </select>
 
                                     <div
-                                        class="mt-3 flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-3"
-                                    >
+                                        class="mt-3 flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-3">
                                         <div
-                                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-gray-700 shadow-sm"
-                                        >
-                                            <component
-                                                :is="
-                                                    getIconOption(
-                                                        form.icon
-                                                    )?.component
-                                                "
-                                                class="h-5 w-5"
-                                                :stroke-width="
-                                                    1.8
-                                                "
-                                            />
+                                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-gray-700 shadow-sm">
+                                            <component :is="getIconOption(
+                                                form.icon
+                                            )?.component
+                                                " class="h-5 w-5" :stroke-width="1.8
+                                                    " />
                                         </div>
 
-                                        <div
-                                            class="min-w-0"
-                                        >
-                                            <div
-                                                class="text-xs font-medium uppercase tracking-wide text-gray-400"
-                                            >
+                                        <div class="min-w-0">
+                                            <div class="text-xs font-medium uppercase tracking-wide text-gray-400">
                                                 Preview Icon
                                             </div>
 
-                                            <div
-                                                class="mt-0.5 truncate text-sm font-medium text-gray-800"
-                                            >
+                                            <div class="mt-0.5 truncate text-sm font-medium text-gray-800">
                                                 {{
                                                     getIconOption(
                                                         form.icon
@@ -2344,78 +2129,50 @@ onBeforeUnmount(() => {
                                 </div>
 
                                 <div>
-                                    <label
-                                        class="mb-1.5 block text-sm font-medium text-gray-700"
-                                    >
+                                    <label class="mb-1.5 block text-sm font-medium text-gray-700">
                                         Urutan
                                     </label>
 
-                                    <input
-                                        v-model.number="
-                                            form.sort_order
-                                        "
-                                        type="number"
-                                        min="0"
-                                        class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-100"
-                                    />
+                                    <input v-model.number="form.sort_order
+                                        " type="number" min="0"
+                                        class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-100" />
                                 </div>
                             </div>
 
                             <label
-                                class="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
-                            >
-                                <input
-                                    v-model="
-                                        form.is_active
-                                    "
-                                    type="checkbox"
-                                    class="h-4 w-4 cursor-pointer rounded border-gray-300 text-gray-900 focus:ring-gray-500"
-                                />
+                                class="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+                                <input v-model="form.is_active
+                                    " type="checkbox"
+                                    class="h-4 w-4 cursor-pointer rounded border-gray-300 text-gray-900 focus:ring-gray-500" />
 
                                 <div>
-                                    <div
-                                        class="text-sm font-medium text-gray-800"
-                                    >
+                                    <div class="text-sm font-medium text-gray-800">
                                         Aplikasi Aktif
                                     </div>
 
-                                    <div
-                                        class="mt-0.5 text-xs text-gray-500"
-                                    >
+                                    <div class="mt-0.5 text-xs text-gray-500">
                                         Aplikasi dapat ditampilkan di portal.
                                     </div>
                                 </div>
                             </label>
 
-                            <div
-                                class="flex justify-end gap-2 border-t border-gray-200 pt-5"
-                            >
-                                <button
-                                    type="button"
-                                    :disabled="
-                                        loadingForm
+                            <div class="flex justify-end gap-2 border-t border-gray-200 pt-5">
+                                <button type="button" :disabled="loadingForm
                                     "
                                     class="cursor-pointer rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                                     @click="
                                         closeFormModal
-                                    "
-                                >
+                                    ">
                                     Batal
                                 </button>
 
-                                <button
-                                    type="submit"
-                                    :disabled="
+                                <button type="submit" :disabled="loadingForm
+                                    "
+                                    class="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50">
+                                    <span v-if="
                                         loadingForm
                                     "
-                                    class="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    <span
-                                        v-if="
-                                            loadingForm
-                                        "
-                                        class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-                                    ></span>
+                                        class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
 
                                     {{
                                         loadingForm
@@ -2429,85 +2186,50 @@ onBeforeUnmount(() => {
                 </div>
             </div>
 
-            <div
-                v-if="showConfirmModal"
-                class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4"
+            <div v-if="showConfirmModal" class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4"
                 @click.self="
                     closeConfirmModal
-                "
-            >
-                <div
-                    class="w-full max-w-md rounded-xl bg-white shadow-2xl"
-                >
+                ">
+                <div class="w-full max-w-md rounded-xl bg-white shadow-2xl">
                     <div class="p-6">
-                        <div
-                            class="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100"
-                        >
-                            <svg
-                                class="h-5 w-5 text-gray-600"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.8"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
+                        <div class="flex h-11 w-11 items-center justify-center rounded-full bg-gray-100">
+                            <svg class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 9v4" />
+                                <path d="M12 17h.01" />
                                 <path
-                                    d="M12 9v4"
-                                />
-                                <path
-                                    d="M12 17h.01"
-                                />
-                                <path
-                                    d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"
-                                />
+                                    d="M10.3 3.7 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z" />
                             </svg>
                         </div>
 
-                        <h2
-                            class="mt-4 text-lg font-semibold text-gray-900"
-                        >
+                        <h2 class="mt-4 text-lg font-semibold text-gray-900">
                             {{ confirmTitle }}
                         </h2>
 
-                        <p
-                            class="mt-2 text-sm leading-6 text-gray-500"
-                        >
+                        <p class="mt-2 text-sm leading-6 text-gray-500">
                             {{ confirmMessage }}
                         </p>
 
-                        <div
-                            class="mt-6 flex justify-end gap-2"
-                        >
-                            <button
-                                type="button"
-                                :disabled="
-                                    confirmLoading
+                        <div class="mt-6 flex justify-end gap-2">
+                            <button type="button" :disabled="confirmLoading
                                 "
                                 class="cursor-pointer rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                                 @click="
                                     closeConfirmModal
-                                "
-                            >
+                                ">
                                 Batal
                             </button>
 
-                            <button
-                                type="button"
-                                :disabled="
-                                    confirmLoading
+                            <button type="button" :disabled="confirmLoading
                                 "
                                 class="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
                                 @click="
                                     executeConfirmAction
+                                ">
+                                <span v-if="
+                                    confirmLoading
                                 "
-                            >
-                                <span
-                                    v-if="
-                                        confirmLoading
-                                    "
-                                    class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-                                ></span>
+                                    class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
 
                                 {{
                                     confirmLoading
@@ -2520,140 +2242,75 @@ onBeforeUnmount(() => {
                 </div>
             </div>
 
-            <div
-                v-if="showDetailModal"
-                class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4"
+            <div v-if="showDetailModal" class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4"
                 @click.self="
                     closeDetailModal
-                "
-            >
-                <div
-                    class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
-                >
-                    <div
-                        class="flex items-center justify-between border-b border-gray-200 px-6 py-4"
-                    >
+                ">
+                <div class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+                    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                         <div>
-                            <h2
-                                class="text-lg font-semibold text-gray-900"
-                            >
+                            <h2 class="text-lg font-semibold text-gray-900">
                                 Detail Aplikasi
                             </h2>
 
-                            <p
-                                class="mt-1 text-sm text-gray-500"
-                            >
+                            <p class="mt-1 text-sm text-gray-500">
                                 Informasi aplikasi.
                             </p>
                         </div>
 
-                        <button
-                            type="button"
+                        <button type="button"
                             class="cursor-pointer rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
                             @click="
                                 closeDetailModal
-                            "
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.8"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path
-                                    d="M18 6 6 18"
-                                />
-                                <path
-                                    d="m6 6 12 12"
-                                />
+                            ">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
                             </svg>
                         </button>
                     </div>
 
-                    <div
-                        class="min-h-0 flex-1 overflow-y-auto px-6 py-5"
-                    >
-                        <div
-                            v-if="loadingDetail"
-                            class="space-y-5"
-                        >
-                            <div
-                                class="flex items-center gap-4"
-                            >
-                                <div
-                                    class="skeleton-shimmer h-14 w-14 rounded-xl"
-                                ></div>
+                    <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+                        <div v-if="loadingDetail" class="space-y-5">
+                            <div class="flex items-center gap-4">
+                                <div class="skeleton-shimmer h-14 w-14 rounded-xl"></div>
 
-                                <div
-                                    class="flex-1 space-y-2"
-                                >
-                                    <div
-                                        class="skeleton-shimmer h-4 w-48 rounded"
-                                    ></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="skeleton-shimmer h-4 w-48 rounded"></div>
 
-                                    <div
-                                        class="skeleton-shimmer h-3 w-32 rounded"
-                                    ></div>
+                                    <div class="skeleton-shimmer h-3 w-32 rounded"></div>
                                 </div>
                             </div>
 
-                            <div
-                                v-for="item in 6"
-                                :key="item"
-                                class="space-y-2"
-                            >
-                                <div
-                                    class="skeleton-shimmer h-3 w-24 rounded"
-                                ></div>
+                            <div v-for="item in 6" :key="item" class="space-y-2">
+                                <div class="skeleton-shimmer h-3 w-24 rounded"></div>
 
-                                <div
-                                    class="skeleton-shimmer h-10 w-full rounded-lg"
-                                ></div>
+                                <div class="skeleton-shimmer h-10 w-full rounded-lg"></div>
                             </div>
                         </div>
 
-                        <div
-                            v-else-if="
-                                applicationDetail
-                            "
-                            class="space-y-6"
-                        >
-                            <div
-                                class="flex items-center gap-4 border-b border-gray-200 pb-5"
-                            >
+                        <div v-else-if="
+                            applicationDetail
+                        " class="space-y-6">
+                            <div class="flex items-center gap-4 border-b border-gray-200 pb-5">
                                 <div
-                                    class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-700"
-                                >
-                                    <component
-                                        :is="
-                                            getIconOption(
-                                                applicationDetail.icon
-                                            )?.component
-                                        "
-                                        class="h-7 w-7"
-                                        :stroke-width="
-                                            1.8
-                                        "
-                                    />
+                                    class="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-700">
+                                    <component :is="getIconOption(
+                                        applicationDetail.icon
+                                    )?.component
+                                        " class="h-7 w-7" :stroke-width="1.8
+                                            " />
                                 </div>
 
-                                <div
-                                    class="min-w-0"
-                                >
-                                    <h3
-                                        class="truncate text-lg font-semibold text-gray-900"
-                                    >
+                                <div class="min-w-0">
+                                    <h3 class="truncate text-lg font-semibold text-gray-900">
                                         {{
                                             applicationDetail.name
                                         }}
                                     </h3>
 
-                                    <p
-                                        class="mt-1 text-sm text-gray-500"
-                                    >
+                                    <p class="mt-1 text-sm text-gray-500">
                                         {{
                                             applicationDetail.code
                                         }}
@@ -2661,19 +2318,13 @@ onBeforeUnmount(() => {
                                 </div>
                             </div>
 
-                            <div
-                                class="grid grid-cols-1 gap-5 sm:grid-cols-2"
-                            >
+                            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                                 <div>
-                                    <div
-                                        class="text-xs font-medium uppercase tracking-wide text-gray-400"
-                                    >
+                                    <div class="text-xs font-medium uppercase tracking-wide text-gray-400">
                                         Nama
                                     </div>
 
-                                    <div
-                                        class="mt-1 text-sm text-gray-800"
-                                    >
+                                    <div class="mt-1 text-sm text-gray-800">
                                         {{
                                             applicationDetail.name ||
                                             '-'
@@ -2682,15 +2333,11 @@ onBeforeUnmount(() => {
                                 </div>
 
                                 <div>
-                                    <div
-                                        class="text-xs font-medium uppercase tracking-wide text-gray-400"
-                                    >
+                                    <div class="text-xs font-medium uppercase tracking-wide text-gray-400">
                                         Code
                                     </div>
 
-                                    <div
-                                        class="mt-1 text-sm text-gray-800"
-                                    >
+                                    <div class="mt-1 text-sm text-gray-800">
                                         {{
                                             applicationDetail.code ||
                                             '-'
@@ -2698,23 +2345,14 @@ onBeforeUnmount(() => {
                                     </div>
                                 </div>
 
-                                <div
-                                    class="sm:col-span-2"
-                                >
-                                    <div
-                                        class="text-xs font-medium uppercase tracking-wide text-gray-400"
-                                    >
+                                <div class="sm:col-span-2">
+                                    <div class="text-xs font-medium uppercase tracking-wide text-gray-400">
                                         URL
                                     </div>
 
-                                    <a
-                                        :href="
-                                            applicationDetail.url
-                                        "
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="mt-1 block break-all text-sm text-emerald-600 hover:underline"
-                                    >
+                                    <a :href="applicationDetail.url
+                                        " target="_blank" rel="noopener noreferrer"
+                                        class="mt-1 block break-all text-sm text-emerald-600 hover:underline">
                                         {{
                                             applicationDetail.url ||
                                             '-'
@@ -2722,18 +2360,12 @@ onBeforeUnmount(() => {
                                     </a>
                                 </div>
 
-                                <div
-                                    class="sm:col-span-2"
-                                >
-                                    <div
-                                        class="text-xs font-medium uppercase tracking-wide text-gray-400"
-                                    >
+                                <div class="sm:col-span-2">
+                                    <div class="text-xs font-medium uppercase tracking-wide text-gray-400">
                                         Deskripsi
                                     </div>
 
-                                    <div
-                                        class="mt-1 text-sm leading-6 text-gray-700"
-                                    >
+                                    <div class="mt-1 text-sm leading-6 text-gray-700">
                                         {{
                                             applicationDetail.description ||
                                             '-'
@@ -2742,26 +2374,17 @@ onBeforeUnmount(() => {
                                 </div>
 
                                 <div>
-                                    <div
-                                        class="text-xs font-medium uppercase tracking-wide text-gray-400"
-                                    >
+                                    <div class="text-xs font-medium uppercase tracking-wide text-gray-400">
                                         Icon
                                     </div>
 
                                     <div
-                                        class="mt-2 inline-flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-700"
-                                    >
-                                        <component
-                                            :is="
-                                                getIconOption(
-                                                    applicationDetail.icon
-                                                )?.component
-                                            "
-                                            class="h-5 w-5"
-                                            :stroke-width="
-                                                1.8
-                                            "
-                                        />
+                                        class="mt-2 inline-flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-700">
+                                        <component :is="getIconOption(
+                                            applicationDetail.icon
+                                        )?.component
+                                            " class="h-5 w-5" :stroke-width="1.8
+                                                " />
 
                                         {{
                                             getIconOption(
@@ -2773,49 +2396,33 @@ onBeforeUnmount(() => {
                                 </div>
 
                                 <div>
-                                    <div
-                                        class="text-xs font-medium uppercase tracking-wide text-gray-400"
-                                    >
+                                    <div class="text-xs font-medium uppercase tracking-wide text-gray-400">
                                         Status
                                     </div>
 
-                                    <div
-                                        class="mt-2"
-                                    >
-                                        <span
-                                            v-if="
-                                                applicationDetail.is_active
-                                            "
-                                            class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700"
-                                        >
-                                            <span
-                                                class="h-1.5 w-1.5 rounded-full bg-green-500"
-                                            ></span>
+                                    <div class="mt-2">
+                                        <span v-if="
+                                            applicationDetail.is_active
+                                        "
+                                            class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                                             Aktif
                                         </span>
 
-                                        <span
-                                            v-else
-                                            class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600"
-                                        >
-                                            <span
-                                                class="h-1.5 w-1.5 rounded-full bg-gray-400"
-                                            ></span>
+                                        <span v-else
+                                            class="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
                                             Nonaktif
                                         </span>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <div
-                                        class="text-xs font-medium uppercase tracking-wide text-gray-400"
-                                    >
+                                    <div class="text-xs font-medium uppercase tracking-wide text-gray-400">
                                         Urutan
                                     </div>
 
-                                    <div
-                                        class="mt-1 text-sm text-gray-800"
-                                    >
+                                    <div class="mt-1 text-sm text-gray-800">
                                         {{
                                             applicationDetail.sort_order ??
                                             0
@@ -2824,42 +2431,38 @@ onBeforeUnmount(() => {
                                 </div>
 
                                 <div>
-                                    <div
-                                        class="text-xs font-medium uppercase tracking-wide text-gray-400"
-                                    >
+                                    <div class="text-xs font-medium uppercase tracking-wide text-gray-400">
                                         Dibuat
                                     </div>
 
-                                    <div
-                                        class="mt-1 text-sm text-gray-800"
-                                    >
+                                    <div class="mt-1 text-sm text-gray-800">
                                         {{
-                                            applicationDetail.created_at ||
-                                            '-'
+                                            applicationDetail.created_at
+                                                ? new Date(applicationDetail.created_at).toLocaleString('id-ID', {
+                                                    day: '2-digit',
+                                                    month: 'long',
+                                        year: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        })
+                                        : '-'
                                         }}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div
-                            v-else
-                            class="py-10 text-center text-sm text-gray-500"
-                        >
+                        <div v-else class="py-10 text-center text-sm text-gray-500">
                             Data aplikasi tidak ditemukan.
                         </div>
                     </div>
 
-                    <div
-                        class="flex justify-end border-t border-gray-200 px-6 py-4"
-                    >
-                        <button
-                            type="button"
+                    <div class="flex justify-end border-t border-gray-200 px-6 py-4">
+                        <button type="button"
                             class="cursor-pointer rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                             @click="
                                 closeDetailModal
-                            "
-                        >
+                            ">
                             Tutup
                         </button>
                     </div>
@@ -2867,98 +2470,57 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- GROUP MODAL -->
-            <div
-                v-if="showGroupsModal"
-                class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4"
+            <div v-if="showGroupsModal" class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4"
                 @click.self="
                     closeGroupsModal
-                "
-            >
-                <div
-                    class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
-                >
-                    <div
-                        class="flex items-center justify-between border-b border-gray-200 px-6 py-4"
-                    >
+                ">
+                <div class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+                    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                         <div>
-                            <h2
-                                class="text-lg font-semibold text-gray-900"
-                            >
+                            <h2 class="text-lg font-semibold text-gray-900">
                                 Group Akses Aplikasi
                             </h2>
 
-                            <p
-                                class="mt-1 text-sm text-gray-500"
-                            >
-                                Tentukan group Keycloak yang dapat mengakses aplikasi.
+                            <p class="mt-1 text-sm text-gray-500">
+                                Tentukan group SSO yang dapat mengakses aplikasi.
                             </p>
                         </div>
 
-                        <button
-                            type="button"
+                        <button type="button"
                             class="cursor-pointer rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
                             @click="
                                 closeGroupsModal
-                            "
-                        >
-                            <svg
-                                class="h-5 w-5"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="1.8"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path
-                                    d="M18 6 6 18"
-                                />
-                                <path
-                                    d="m6 6 12 12"
-                                />
+                            ">
+                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
                             </svg>
                         </button>
                     </div>
 
-                    <div
-                        class="min-h-0 flex-1 overflow-y-auto px-6 py-5"
-                    >
-                        <div
-                            v-if="
-                                groupApplication
-                            "
-                            class="mb-5 flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
-                        >
+                    <div class="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+                        <div v-if="
+                            groupApplication
+                        "
+                            class="mb-5 flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
                             <div
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-gray-700 shadow-sm"
-                            >
-                                <component
-                                    :is="
-                                        getIconOption(
-                                            groupApplication.icon
-                                        )?.component
-                                    "
-                                    class="h-5 w-5"
-                                    :stroke-width="
-                                        1.8
-                                    "
-                                />
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-gray-700 shadow-sm">
+                                <component :is="getIconOption(
+                                    groupApplication.icon
+                                )?.component
+                                    " class="h-5 w-5" :stroke-width="1.8
+                                        " />
                             </div>
 
-                            <div
-                                class="min-w-0"
-                            >
-                                <div
-                                    class="truncate text-sm font-semibold text-gray-900"
-                                >
+                            <div class="min-w-0">
+                                <div class="truncate text-sm font-semibold text-gray-900">
                                     {{
                                         groupApplication.name
                                     }}
                                 </div>
 
-                                <div
-                                    class="mt-0.5 text-xs text-gray-500"
-                                >
+                                <div class="mt-0.5 text-xs text-gray-500">
                                     {{
                                         groupApplication.code
                                     }}
@@ -2966,15 +2528,9 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
 
-                        <div
-                            class="mb-4 flex flex-wrap items-center justify-between gap-2"
-                        >
-                            <div
-                                class="text-sm text-gray-600"
-                            >
-                                <span
-                                    class="font-medium text-gray-900"
-                                >
+                        <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                            <div class="text-sm text-gray-600">
+                                <span class="font-medium text-gray-900">
                                     {{
                                         selectedGroups.length
                                     }}
@@ -2982,99 +2538,65 @@ onBeforeUnmount(() => {
                                 group dipilih
                             </div>
 
-                            <div
-                                class="flex gap-2"
-                            >
-                                <button
-                                    type="button"
+                            <div class="flex gap-2">
+                                <button type="button"
                                     class="cursor-pointer rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
                                     @click="
                                         selectAllGroups
-                                    "
-                                >
+                                    ">
                                     Pilih Semua
                                 </button>
 
-                                <button
-                                    type="button"
+                                <button type="button"
                                     class="cursor-pointer rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
                                     @click="
                                         clearAllGroups
-                                    "
-                                >
+                                    ">
                                     Hapus Semua
                                 </button>
                             </div>
                         </div>
 
-                        <div
-                            v-if="
-                                loadingGroups
-                            "
-                            class="space-y-2"
-                        >
-                            <div
-                                v-for="item in 8"
-                                :key="item"
-                                class="h-12 animate-pulse rounded-lg bg-gray-100"
-                            ></div>
+                        <div v-if="
+                            loadingGroups
+                        " class="space-y-2">
+                            <div v-for="item in 8" :key="item" class="h-12 animate-pulse rounded-lg bg-gray-100"></div>
                         </div>
 
-                        <div
-                            v-else-if="
-                                availableGroups.length
-                            "
-                            class="space-y-2"
-                        >
-                            <label
-                                v-for="group in availableGroups"
-                                :key="
-                                    group.id
-                                "
-                                class="flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition"
-                                :class="
-                                    selectedGroups.includes(
-                                        normalizeGroupPath(
-                                            group.path
-                                        )
+                        <div v-else-if="
+                            availableGroups.length
+                        " class="space-y-2">
+                            <label v-for="group in availableGroups" :key="group.id
+                                " class="flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition"
+                                :class="selectedGroups.includes(
+                                    normalizeGroupPath(
+                                        group.path
                                     )
+                                )
                                         ? 'border-emerald-300 bg-emerald-50'
                                         : 'border-gray-200 hover:bg-gray-50'
-                                "
-                                :style="{
+                                    " :style="{
                                     paddingLeft:
                                         `${1 + ((group.level || 0) * 1.5)}rem`,
-                                }"
-                            >
-                                <input
-                                    type="checkbox"
-                                    :checked="
-                                        selectedGroups.includes(
-                                            normalizeGroupPath(
-                                                group.path
-                                            )
-                                        )
+                                }">
+                                <input type="checkbox" :checked="selectedGroups.includes(
+                                    normalizeGroupPath(
+                                        group.path
+                                    )
+                                )
                                     "
                                     class="h-4 w-4 cursor-pointer rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                                     @change="
                                         toggleGroup(
                                             group.path
                                         )
-                                    "
-                                />
+                                        " />
 
-                                <div
-                                    class="min-w-0 flex-1"
-                                >
-                                    <div
-                                        class="flex items-center gap-2 text-sm font-medium text-gray-900"
-                                    >
-                                        <span
-                                            v-if="
-                                                group.level > 0
-                                            "
-                                            class="text-gray-400"
-                                        >
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2 text-sm font-medium text-gray-900">
+                                        <span v-if="
+                                            group.level > 0
+                                        " class="text-gray-400">
                                             ↳
                                         </span>
 
@@ -3083,65 +2605,45 @@ onBeforeUnmount(() => {
                                         }}
                                     </div>
 
-                                    <div
-                                        class="mt-0.5 text-xs text-gray-500"
-                                    >
+                                    <div class="mt-0.5 text-xs text-gray-500">
                                         {{
                                             group.path
                                         }}
                                     </div>
                                 </div>
 
-                                <UsersRound
-                                    class="h-4 w-4 shrink-0 text-gray-400"
-                                    :stroke-width="
-                                        1.8
-                                    "
-                                />
+                                <UsersRound class="h-4 w-4 shrink-0 text-gray-400" :stroke-width="1.8
+                                    " />
                             </label>
                         </div>
 
-                        <div
-                            v-else
-                            class="rounded-lg border border-gray-200 px-4 py-10 text-center text-sm text-gray-500"
-                        >
-                            Tidak ada group Keycloak.
+                        <div v-else
+                            class="rounded-lg border border-gray-200 px-4 py-10 text-center text-sm text-gray-500">
+                            Tidak ada group SSO.
                         </div>
                     </div>
 
-                    <div
-                        class="flex justify-end gap-2 border-t border-gray-200 px-6 py-4"
-                    >
-                        <button
-                            type="button"
+                    <div class="flex justify-end gap-2 border-t border-gray-200 px-6 py-4">
+                        <button type="button"
                             class="cursor-pointer rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                            :disabled="
-                                savingGroups
-                            "
-                            @click="
+                            :disabled="savingGroups
+                                " @click="
                                 closeGroupsModal
-                            "
-                        >
+                            ">
                             Batal
                         </button>
 
-                        <button
-                            type="button"
+                        <button type="button"
                             class="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
-                            :disabled="
-                                savingGroups ||
+                            :disabled="savingGroups ||
                                 loadingGroups
-                            "
-                            @click="
+                                " @click="
                                 saveApplicationGroups
+                            ">
+                            <span v-if="
+                                savingGroups
                             "
-                        >
-                            <span
-                                v-if="
-                                    savingGroups
-                                "
-                                class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"
-                            ></span>
+                                class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
 
                             {{
                                 savingGroups
@@ -3490,14 +2992,12 @@ onBeforeUnmount(() => {
 
     transform: translateX(-100%);
 
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgb(255 255 255 / 45%) 40%,
-        rgb(255 255 255 / 80%) 50%,
-        rgb(255 255 255 / 45%) 60%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgb(255 255 255 / 45%) 40%,
+            rgb(255 255 255 / 80%) 50%,
+            rgb(255 255 255 / 45%) 60%,
+            transparent 100%);
 
     animation: skeleton-shimmer 1.5s infinite;
 }
@@ -3529,6 +3029,7 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 640px) {
+
     :deep(#applications-table thead th),
     :deep(#applications-table tbody td) {
         padding-left: 0.75rem;

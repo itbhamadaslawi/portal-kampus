@@ -610,7 +610,7 @@ const openConfirmModal = (
             'Hapus Pengguna'
 
         confirmMessage.value =
-            'Pengguna akan dihapus secara permanen dari Keycloak. Tindakan ini tidak dapat dibatalkan.'
+            'Pengguna akan dihapus secara permanen dari SSO. Tindakan ini tidak dapat dibatalkan.'
 
         confirmActionText.value =
             'Hapus'
@@ -797,7 +797,7 @@ onBeforeUnmount(() => {
                     <p
                         class="mt-1 text-sm text-gray-500"
                     >
-                        Kelola pengguna yang terdaftar pada Keycloak.
+                        Kelola pengguna yang terdaftar pada SSO.
                     </p>
                 </div>
 

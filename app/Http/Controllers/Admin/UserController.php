@@ -286,6 +286,22 @@ class UserController extends Controller
         ]);
     }
 
+    public function json(
+    string $userId,
+    KeycloakService $keycloakService
+): JsonResponse {
+    $user = $keycloakService->getUser($userId);
+    $sessions = $keycloakService->getUserSessions($userId);
+    $groups = $keycloakService->getUserGroups($userId);
+
+    return response()->json([
+        'user' => $user,
+        'sessions' => $sessions,
+        'groups' => $groups,
+    ]);
+}
+
+
     public function create(): Response
     {
         return Inertia::render(
@@ -308,5 +324,7 @@ class UserController extends Controller
             ]
         );
     }
+
+    
 }
 
