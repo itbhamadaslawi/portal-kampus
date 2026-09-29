@@ -274,4 +274,698 @@ class KeycloakService
 
         return $this->getUser($userId);
     }
+
+    public function getUsers(
+        ?string $search = null,
+        int $page = 1,
+        int $perPage = 20
+    ): array {
+        $token = $this->getAdminToken();
+
+        $query = [
+            'first' => max(0, ($page - 1) * $perPage),
+            'max' => $perPage,
+        ];
+
+        if ($search !== null && trim($search) !== '') {
+            $query['search'] = trim($search);
+        }
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->get(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users',
+                $query
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak users error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    public function createUser(array $data): array
+    {
+        $token = $this->getAdminToken();
+
+        $payload = [
+            'username' => trim($data['username']),
+            'firstName' => trim($data['firstName']),
+            'lastName' => trim($data['lastName'] ?? ''),
+            'email' => trim($data['email'] ?? ''),
+            'enabled' => $data['enabled'] ?? true,
+            'emailVerified' => $data['emailVerified'] ?? false,
+        ];
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->post(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users',
+                $payload
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak create user error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+
+        $location = $response->header('Location');
+
+        if (! $location) {
+            throw new RuntimeException(
+                'User berhasil dibuat tetapi ID user tidak ditemukan.'
+            );
+        }
+
+        $userId = basename(
+            parse_url($location, PHP_URL_PATH)
+        );
+
+        return $this->getUser($userId);
+    }
+
+    public function updateUserStatus(
+        string $userId,
+        bool $enabled
+    ): array {
+        $token = $this->getAdminToken();
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->put(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId),
+                [
+                    'enabled' => $enabled,
+                ]
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak update user status error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+
+        return $this->getUser($userId);
+    }
+
+    public function resetUserPassword(
+        string $userId,
+        string $password
+    ): void {
+        $token = $this->getAdminToken();
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->put(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId)
+                .'/reset-password',
+                [
+                    'type' => 'password',
+                    'value' => $password,
+                    'temporary' => false,
+                ]
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak reset password error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+    }
+
+    public function deleteUser(string $userId): void
+    {
+        $token = $this->getAdminToken();
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->delete(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId)
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak delete user error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+    }
+
+    public function logoutAllUserSessions(
+        string $userId
+    ): void {
+        $token = $this->getAdminToken();
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->post(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId)
+                .'/logout'
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak logout user sessions error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+    }
+
+    public function getUserGroups(
+        string $userId
+    ): array {
+        $token = $this->getAdminToken();
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->get(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId)
+                .'/groups'
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak user groups error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+
+        return $response->json() ?? [];
+    }
+
+    public function addUserToGroup(
+        string $userId,
+        string $groupId
+    ): void {
+        $token = $this->getAdminToken();
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->put(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId)
+                .'/groups/'
+                .urlencode($groupId)
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak add user group error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+    }
+
+    public function removeUserFromGroup(
+        string $userId,
+        string $groupId
+    ): void {
+        $token = $this->getAdminToken();
+
+        $response = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->delete(
+                $this->baseUrl
+                .'/admin/realms/'
+                .$this->realm
+                .'/users/'
+                .urlencode($userId)
+                .'/groups/'
+                .urlencode($groupId)
+            );
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'Keycloak remove user group error: '
+                .$response->status()
+                .' - '
+                .$response->body()
+            );
+        }
+    }
+
+
+    public function getUsersForDataTable(
+    int $start = 0,
+    int $length = 10,
+    ?string $search = null,
+    string $sortBy = 'username',
+    string $sortDirection = 'asc'
+): array {
+    $token = $this->getAdminToken();
+
+    $currentUserId = session('keycloak_user.id');
+
+    $allowedSorts = [
+        'username' => 'username',
+        'firstName' => 'firstName',
+        'lastName' => 'lastName',
+        'email' => 'email',
+        'enabled' => 'enabled',
+    ];
+
+    $sortBy = $allowedSorts[$sortBy] ?? 'username';
+
+    $sortDirection = strtolower($sortDirection) === 'desc'
+        ? 'desc'
+        : 'asc';
+
+    $searchValue = $search !== null
+        ? trim($search)
+        : '';
+
+    $params = [
+        'first' => 0,
+        'max' => 1000,
+    ];
+
+    if ($searchValue !== '') {
+        $params['search'] = $searchValue;
+    }
+
+    $response = Http::withToken($token)
+        ->acceptJson()
+        ->timeout(10)
+        ->get(
+            $this->baseUrl
+            . '/admin/realms/'
+            . $this->realm
+            . '/users',
+            $params
+        );
+
+    if ($response->failed()) {
+        throw new RuntimeException(
+            'Keycloak users error: '
+            . $response->status()
+            . ' - '
+            . $response->body()
+        );
+    }
+
+    $users = $response->json() ?? [];
+
+    if ($currentUserId) {
+        $users = array_values(
+            array_filter(
+                $users,
+                function ($user) use ($currentUserId) {
+                    return (string) ($user['id'] ?? '')
+                        !== (string) $currentUserId;
+                }
+            )
+        );
+    }
+
+    usort(
+        $users,
+        function ($a, $b) use (
+            $sortBy,
+            $sortDirection
+        ) {
+            $valueA = strtolower(
+                (string) ($a[$sortBy] ?? '')
+            );
+
+            $valueB = strtolower(
+                (string) ($b[$sortBy] ?? '')
+            );
+
+            $result = $valueA <=> $valueB;
+
+            return $sortDirection === 'desc'
+                ? -$result
+                : $result;
+        }
+    );
+
+    $recordsFiltered = count($users);
+
+    $countResponse = Http::withToken($token)
+        ->acceptJson()
+        ->timeout(10)
+        ->get(
+            $this->baseUrl
+            . '/admin/realms/'
+            . $this->realm
+            . '/users/count',
+            $searchValue !== ''
+                ? [
+                    'search' => $searchValue,
+                ]
+                : []
+        );
+
+    if ($countResponse->failed()) {
+        throw new RuntimeException(
+            'Keycloak users count error: '
+            . $countResponse->status()
+            . ' - '
+            . $countResponse->body()
+        );
+    }
+
+    $recordsFiltered = (int) (
+        $countResponse->json('count') ?? 0
+    );
+
+    $totalResponse = Http::withToken($token)
+        ->acceptJson()
+        ->timeout(10)
+        ->get(
+            $this->baseUrl
+            . '/admin/realms/'
+            . $this->realm
+            . '/users/count'
+        );
+
+    if ($totalResponse->failed()) {
+        throw new RuntimeException(
+            'Keycloak total users count error: '
+            . $totalResponse->status()
+            . ' - '
+            . $totalResponse->body()
+        );
+    }
+
+    $recordsTotal = (int) (
+        $totalResponse->json('count') ?? 0
+    );
+
+    if ($currentUserId) {
+        $recordsTotal = max(
+            0,
+            $recordsTotal - 1
+        );
+
+        if ($recordsFiltered > 0) {
+            $currentUserMatchesSearch = false;
+
+            $currentUserResponse = Http::withToken($token)
+                ->acceptJson()
+                ->timeout(10)
+                ->get(
+                    $this->baseUrl
+                    . '/admin/realms/'
+                    . $this->realm
+                    . '/users/'
+                    . urlencode($currentUserId)
+                );
+
+            if ($currentUserResponse->successful()) {
+                $currentUser = $currentUserResponse->json() ?? [];
+
+                if ($searchValue !== '') {
+                    $searchLower = strtolower(
+                        $searchValue
+                    );
+
+                    $currentUserValues = [
+                        strtolower(
+                            (string) ($currentUser['username'] ?? '')
+                        ),
+                        strtolower(
+                            (string) ($currentUser['firstName'] ?? '')
+                        ),
+                        strtolower(
+                            (string) ($currentUser['lastName'] ?? '')
+                        ),
+                        strtolower(
+                            (string) ($currentUser['email'] ?? '')
+                        ),
+                    ];
+
+                    foreach ($currentUserValues as $value) {
+                        if (
+                            $value !== ''
+                            && str_contains(
+                                $value,
+                                $searchLower
+                            )
+                        ) {
+                            $currentUserMatchesSearch = true;
+                            break;
+                        }
+                    }
+                } else {
+                    $currentUserMatchesSearch = true;
+                }
+            }
+
+            if ($currentUserMatchesSearch) {
+                $recordsFiltered = max(
+                    0,
+                    $recordsFiltered - 1
+                );
+            }
+        }
+    }
+
+    $users = array_slice(
+        $users,
+        $start,
+        $length
+    );
+
+    return [
+        'data' => $users,
+        'recordsTotal' => $recordsTotal,
+        'recordsFiltered' => $recordsFiltered,
+    ];
+}
+
+
+public function getGroups(): array
+{
+    $token = $this->getAdminToken();
+
+    $response = Http::withToken($token)
+        ->acceptJson()
+        ->timeout(10)
+        ->get(
+            $this->baseUrl
+            . '/admin/realms/'
+            . $this->realm
+            . '/groups'
+        );
+
+    if ($response->failed()) {
+        throw new RuntimeException(
+            'Keycloak groups error: '
+            . $response->status()
+            . ' - '
+            . $response->body()
+        );
+    }
+
+    $groups = $response->json() ?? [];
+
+    return $this->getAllGroupsRecursive(
+        $token,
+        $groups
+    );
+}
+
+private function getAllGroupsRecursive(
+    string $token,
+    array $groups,
+    string $parentPath = ''
+): array {
+    $result = [];
+
+    foreach ($groups as $group) {
+        $groupId = $group['id'] ?? null;
+        $name = $group['name'] ?? '';
+
+        if (! $groupId || $name === '') {
+            continue;
+        }
+
+        $path = $parentPath === ''
+            ? '/' . $name
+            : $parentPath . '/' . $name;
+
+        $result[] = [
+            'id' => $groupId,
+            'name' => $name,
+            'path' => $path,
+        ];
+
+        $childrenResponse = Http::withToken($token)
+            ->acceptJson()
+            ->timeout(10)
+            ->get(
+                $this->baseUrl
+                . '/admin/realms/'
+                . $this->realm
+                . '/groups/'
+                . $groupId
+                . '/children'
+            );
+
+        if ($childrenResponse->failed()) {
+            throw new RuntimeException(
+                'Keycloak child groups error: '
+                . $childrenResponse->status()
+                . ' - '
+                . $childrenResponse->body()
+            );
+        }
+
+        $children = $childrenResponse->json() ?? [];
+
+        if (! empty($children)) {
+            $result = array_merge(
+                $result,
+                $this->getAllGroupsRecursive(
+                    $token,
+                    $children,
+                    $path
+                )
+            );
+        }
+    }
+
+    return $result;
+}
+
+
+public function getAllGroups(): array
+{
+    $token = $this->getAdminToken();
+
+    $response = Http::withToken($token)
+        ->acceptJson()
+        ->timeout(10)
+        ->get(
+            $this->baseUrl
+            . '/admin/realms/'
+            . $this->realm
+            . '/groups',
+            [
+                'briefRepresentation' => 'false',
+            ]
+        );
+
+    if ($response->failed()) {
+        throw new RuntimeException(
+            'Keycloak groups error: '
+            . $response->status()
+            . ' - '
+            . $response->body()
+        );
+    }
+
+    $groups = $response->json() ?? [];
+
+    $result = [];
+
+    $flatten = function (
+        array $items
+    ) use (&$flatten, &$result) {
+        foreach ($items as $group) {
+            $name = trim(
+                (string) ($group['name'] ?? '')
+            );
+
+            if ($name === '') {
+                continue;
+            }
+
+            $path = trim(
+                (string) ($group['path'] ?? '')
+            );
+
+            if ($path === '') {
+                $path = '/' . $name;
+            }
+
+            $result[] = [
+                'id' => $group['id'] ?? null,
+                'name' => $name,
+                'path' => $path,
+            ];
+
+            $subGroups =
+                $group['subGroups']
+                ?? $group['subgroups']
+                ?? [];
+
+            if (
+                is_array($subGroups)
+                && ! empty($subGroups)
+            ) {
+                $flatten($subGroups);
+            }
+        }
+    };
+
+    $flatten($groups);
+
+    return $result;
+}
+
+
 }

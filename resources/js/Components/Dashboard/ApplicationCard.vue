@@ -1,10 +1,235 @@
 <script setup>
+import {
+    Activity,
+    Archive,
+    ArchiveRestore,
+    Award,
+    Banknote,
+    BarChart3,
+    Bell,
+    Book,
+    BookOpen,
+    BookOpenCheck,
+    Briefcase,
+    Building2,
+    Calendar,
+    CalendarCheck,
+    CalendarClock,
+    CalendarDays,
+    Calculator,
+    Clipboard,
+    ClipboardCheck,
+    ClipboardList,
+    Clock,
+    Cloud,
+    CloudDownload,
+    CloudUpload,
+    Code2,
+    Cog,
+    Contact,
+    CreditCard,
+    Database,
+    Download,
+    File,
+    FileArchive,
+    FileCheck,
+    FileClock,
+    FileCode,
+    FileImage,
+    FileSpreadsheet,
+    FileText,
+    Folder,
+    FolderOpen,
+    GraduationCap,
+    Grid2X2,
+    HardDrive,
+    Headphones,
+    HeartPulse,
+    Home,
+    IdCard,
+    Image,
+    Inbox,
+    KeyRound,
+    Laptop,
+    LayoutDashboard,
+    Library,
+    Link,
+    Lock,
+    Mail,
+    MapPin,
+    Megaphone,
+    MessageSquare,
+    Monitor,
+    Network,
+    Newspaper,
+    Package,
+    PackageCheck,
+    Phone,
+    PieChart,
+    Presentation,
+    Printer,
+    QrCode,
+    Receipt,
+    RefreshCw,
+    Rocket,
+    School,
+    Search,
+    Send,
+    Server,
+    Settings,
+    Shield,
+    ShieldCheck,
+    Smartphone,
+    Star,
+    Stethoscope,
+    Tag,
+    Target,
+    Terminal,
+    Ticket,
+    TrendingUp,
+    Upload,
+    User,
+    UserCheck,
+    UserCog,
+    Users,
+    UsersRound,
+    Wallet,
+    Wifi,
+    Wrench,
+} from 'lucide-vue-next'
+
 defineProps({
     application: {
         type: Object,
         required: true,
     },
 })
+
+const iconMap = {
+    'layout-dashboard': LayoutDashboard,
+    home: Home,
+    'graduation-cap': GraduationCap,
+    'book-open': BookOpen,
+    book: Book,
+    'book-open-check': BookOpenCheck,
+    library: Library,
+    school: School,
+
+    users: Users,
+    'users-round': UsersRound,
+    user: User,
+    'user-check': UserCheck,
+    'user-cog': UserCog,
+    'id-card': IdCard,
+
+    briefcase: Briefcase,
+    'building-2': Building2,
+
+    monitor: Monitor,
+    laptop: Laptop,
+    smartphone: Smartphone,
+    server: Server,
+    database: Database,
+    network: Network,
+    wifi: Wifi,
+    'hard-drive': HardDrive,
+
+    package: Package,
+    'package-check': PackageCheck,
+
+    wallet: Wallet,
+    banknote: Banknote,
+    'credit-card': CreditCard,
+    receipt: Receipt,
+    calculator: Calculator,
+
+    calendar: Calendar,
+    'calendar-days': CalendarDays,
+    'calendar-check': CalendarCheck,
+    'calendar-clock': CalendarClock,
+    clock: Clock,
+
+    clipboard: Clipboard,
+    'clipboard-check': ClipboardCheck,
+    'clipboard-list': ClipboardList,
+
+    'file-text': FileText,
+    file: File,
+    'file-check': FileCheck,
+    'file-clock': FileClock,
+    'file-spreadsheet': FileSpreadsheet,
+    'file-code': FileCode,
+    'file-image': FileImage,
+    'file-archive': FileArchive,
+
+    folder: Folder,
+    'folder-open': FolderOpen,
+    archive: Archive,
+    'archive-restore': ArchiveRestore,
+
+    printer: Printer,
+    'qr-code': QrCode,
+
+    mail: Mail,
+    send: Send,
+    inbox: Inbox,
+    'message-square': MessageSquare,
+    megaphone: Megaphone,
+    newspaper: Newspaper,
+    phone: Phone,
+    headphones: Headphones,
+
+    'heart-pulse': HeartPulse,
+    stethoscope: Stethoscope,
+
+    presentation: Presentation,
+    image: Image,
+
+    cloud: Cloud,
+    'cloud-upload': CloudUpload,
+    'cloud-download': CloudDownload,
+    upload: Upload,
+    download: Download,
+
+    link: Link,
+    search: Search,
+
+    'bar-chart-3': BarChart3,
+    'pie-chart': PieChart,
+    'trending-up': TrendingUp,
+    activity: Activity,
+
+    award: Award,
+    star: Star,
+    target: Target,
+    rocket: Rocket,
+
+    shield: Shield,
+    'shield-check': ShieldCheck,
+    'key-round': KeyRound,
+    lock: Lock,
+
+    settings: Settings,
+    cog: Cog,
+    wrench: Wrench,
+
+    'code-2': Code2,
+    terminal: Terminal,
+
+    tag: Tag,
+    ticket: Ticket,
+    contact: Contact,
+    'map-pin': MapPin,
+    bell: Bell,
+
+    'refresh-cw': RefreshCw,
+
+    'grid-2x2': Grid2X2,
+}
+
+const getIcon = (icon) => {
+    return iconMap[icon] || Grid2X2
+}
 </script>
 
 <template>
@@ -14,235 +239,46 @@ defineProps({
         rel="noopener noreferrer"
         class="group block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-md"
     >
-        <!-- Top -->
         <div class="flex items-start justify-between">
-
-            <!-- Icon -->
             <div
                 class="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-50 text-gray-700 transition group-hover:bg-emerald-50 group-hover:text-emerald-600"
             >
-                <!-- SIAKAD -->
-                <svg
-                    v-if="application.code === 'siakad'"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.8"
-                    stroke="currentColor"
+                <component
+                    :is="getIcon(application.icon)"
                     class="h-6 w-6"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11a2 2 0 0 1 2 2v16a2 2 0 0 0-2-2H6.5A2.5 2.5 0 0 1 4 16.5v-11Z"
-                    />
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13a2 2 0 0 0-2 2v16a2 2 0 0 1 2-2h4.5a2.5 2.5 0 0 0 2.5-2.5v-11Z"
-                    />
-                </svg>
-
-                <!-- SIMPEG -->
-                <svg
-                    v-else-if="application.code === 'simpeg'"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.8"
-                    stroke="currentColor"
-                    class="h-6 w-6"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                    />
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M4.5 20a7.5 7.5 0 0 1 15 0"
-                    />
-                </svg>
-
-                <!-- CBT -->
-                <svg
-                    v-else-if="application.code === 'cbt'"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.8"
-                    stroke="currentColor"
-                    class="h-6 w-6"
-                >
-                    <rect
-                        x="6"
-                        y="3"
-                        width="12"
-                        height="18"
-                        rx="2"
-                    />
-                    <path
-                        stroke-linecap="round"
-                        d="M9 17h6"
-                    />
-                </svg>
-
-                <!-- Inventaris -->
-                <svg
-                    v-else-if="application.code === 'inventaris'"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.8"
-                    stroke="currentColor"
-                    class="h-6 w-6"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m12 3 8 4-8 4-8-4 8-4Z"
-                    />
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m4 12 8 4 8-4"
-                    />
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m4 17 8 4 8-4"
-                    />
-                </svg>
-
-                <!-- Keuangan -->
-                <svg
-                    v-else-if="application.code === 'keuangan'"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.8"
-                    stroke="currentColor"
-                    class="h-6 w-6"
-                >
-                    <rect
-                        x="3"
-                        y="5"
-                        width="18"
-                        height="14"
-                        rx="2"
-                    />
-                    <path
-                        stroke-linecap="round"
-                        d="M3 9h18"
-                    />
-                    <path
-                        stroke-linecap="round"
-                        d="M7 14h3"
-                    />
-                </svg>
-
-                <!-- Perpustakaan -->
-                <svg
-                    v-else-if="application.code === 'perpustakaan'"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.8"
-                    stroke="currentColor"
-                    class="h-6 w-6"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4Z"
-                    />
-                    <path
-                        stroke-linecap="round"
-                        d="M5 17a3 3 0 0 1 3-3h11"
-                    />
-                </svg>
-
-                <!-- Fallback -->
-                <svg
-                    v-else
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.8"
-                    stroke="currentColor"
-                    class="h-6 w-6"
-                >
-                    <rect
-                        x="3"
-                        y="3"
-                        width="7"
-                        height="7"
-                        rx="1"
-                    />
-                    <rect
-                        x="14"
-                        y="3"
-                        width="7"
-                        height="7"
-                        rx="1"
-                    />
-                    <rect
-                        x="3"
-                        y="14"
-                        width="7"
-                        height="7"
-                        rx="1"
-                    />
-                    <rect
-                        x="14"
-                        y="14"
-                        width="7"
-                        height="7"
-                        rx="1"
-                    />
-                </svg>
+                    :stroke-width="1.8"
+                />
             </div>
 
-            <!-- Arrow -->
-            <div
-                class="flex h-8 w-8 items-center justify-center rounded-lg text-gray-300 transition group-hover:bg-emerald-50 group-hover:text-emerald-500"
+            <svg
+                class="h-5 w-5 text-gray-300 transition group-hover:text-emerald-500"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.8"
-                    stroke="currentColor"
-                    class="h-5 w-5 transition group-hover:translate-x-0.5"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="m9 5 7 7-7 7"
-                    />
-                </svg>
-            </div>
+                <path d="M7 17 17 7" />
+                <path d="M7 7h10v10" />
+            </svg>
         </div>
 
-        <!-- Name -->
         <h3
-            class="mt-4 text-base font-semibold text-gray-800 transition group-hover:text-emerald-600"
+            class="mt-4 text-base font-semibold text-gray-900 transition group-hover:text-emerald-600"
         >
             {{ application.name }}
         </h3>
 
-        <!-- Description -->
         <p
             v-if="application.description"
-            class="mt-1 text-sm leading-relaxed text-gray-500"
+            class="mt-1.5 line-clamp-2 text-sm leading-6 text-gray-500"
         >
             {{ application.description }}
         </p>
 
-        <!-- Action -->
         <div
-            class="mt-4 text-xs font-medium text-emerald-600"
+            class="mt-4 text-sm font-medium text-gray-500 transition group-hover:text-emerald-600"
         >
             Buka aplikasi →
         </div>

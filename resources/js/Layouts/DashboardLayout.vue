@@ -1,14 +1,15 @@
+
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 
 import Sidebar from '@/Components/Dashboard/Sidebar.vue'
 import Topbar from '@/Components/Dashboard/Topbar.vue'
 
-defineProps({
-    user: {
-        type: Object,
-        default: () => ({}),
-    },
+const page = usePage()
+
+const user = computed(() => {
+    return page.props.auth?.user ?? {}
 })
 
 const sidebarOpen = ref(false)
@@ -28,9 +29,11 @@ const sidebarMinimized = ref(false)
         <!-- Main Area -->
         <div
             class="min-h-screen transition-all duration-300"
-            :class="sidebarMinimized
-                ? 'lg:pl-20'
-                : 'lg:pl-64'"
+            :class="
+                sidebarMinimized
+                    ? 'lg:pl-20'
+                    : 'lg:pl-64'
+            "
         >
 
             <!-- Topbar -->
@@ -53,3 +56,4 @@ const sidebarMinimized = ref(false)
         </div>
     </div>
 </template>
+
