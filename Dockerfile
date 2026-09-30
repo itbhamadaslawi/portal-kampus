@@ -34,11 +34,14 @@ RUN composer install \
     --optimize-autoloader \
     --no-interaction
 
-RUN mkdir -p /var/www/public/banners \
-    && chown -R www-data:www-data \
-        /var/www/storage \
-        /var/www/bootstrap/cache \
-        /var/www/public/banners \
-    && chmod 755 /var/www/public/banners
+RUN chown -R www-data:www-data \
+    /var/www/storage \
+    /var/www/bootstrap/cache
+
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 CMD ["php-fpm"]
