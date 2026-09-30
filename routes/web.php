@@ -10,6 +10,7 @@ use App\Http\Controllers\SessionController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -124,10 +125,47 @@ Route::middleware('keycloak.auth')->group(function () {
                 'data',
             ])->name('users.data');
 
+            /*
+ * Import Users
+ */     
+            Route::get('/users/import', [
+                UserController::class,
+                'import',
+            ])->name('users.import');
+
+            Route::get('/users/import/template', [
+                UserController::class,
+                'importTemplate',
+            ])->name('users.import.template');
+
+            
+
+            Route::post('/users/import/sync', [
+                UserController::class,
+                'importSync',
+            ])->name('users.import.sync');
+
+            Route::post('/users/import/submit', [
+                UserController::class,
+                'importSubmit',
+            ])->name('users.import.submit');
+
+            Route::get('/users/import/template', [
+                UserController::class,
+                'downloadTemplate',
+            ])->name('users.import.template');
+
+
+
+
+            // 
             Route::get('/users/create', [
                 UserController::class,
                 'create',
             ])->name('users.create');
+
+
+            
 
             Route::post('/users', [
                 UserController::class,

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Services\KeycloakService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -178,8 +180,7 @@ class UserController extends Controller
             );
 
         return response()->json([
-            'message' =>
-                ($updatedUser['enabled'] ?? false)
+            'message' => ($updatedUser['enabled'] ?? false)
                     ? 'User berhasil diaktifkan.'
                     : 'User berhasil dinonaktifkan.',
             'user' => $updatedUser,
@@ -230,8 +231,7 @@ class UserController extends Controller
         );
 
         return response()->json([
-            'message' =>
-                'Semua sesi user berhasil dikeluarkan.',
+            'message' => 'Semua sesi user berhasil dikeluarkan.',
         ]);
     }
 
@@ -240,10 +240,9 @@ class UserController extends Controller
         KeycloakService $keycloakService
     ): JsonResponse {
         return response()->json([
-            'groups' =>
-                $keycloakService->getUserGroups(
-                    $userId
-                ),
+            'groups' => $keycloakService->getUserGroups(
+                $userId
+            ),
         ]);
     }
 
@@ -265,8 +264,7 @@ class UserController extends Controller
         );
 
         return response()->json([
-            'message' =>
-                'User berhasil ditambahkan ke group.',
+            'message' => 'User berhasil ditambahkan ke group.',
         ]);
     }
 
@@ -281,26 +279,24 @@ class UserController extends Controller
         );
 
         return response()->json([
-            'message' =>
-                'User berhasil dikeluarkan dari group.',
+            'message' => 'User berhasil dikeluarkan dari group.',
         ]);
     }
 
     public function json(
-    string $userId,
-    KeycloakService $keycloakService
-): JsonResponse {
-    $user = $keycloakService->getUser($userId);
-    $sessions = $keycloakService->getUserSessions($userId);
-    $groups = $keycloakService->getUserGroups($userId);
+        string $userId,
+        KeycloakService $keycloakService
+    ): JsonResponse {
+        $user = $keycloakService->getUser($userId);
+        $sessions = $keycloakService->getUserSessions($userId);
+        $groups = $keycloakService->getUserGroups($userId);
 
-    return response()->json([
-        'user' => $user,
-        'sessions' => $sessions,
-        'groups' => $groups,
-    ]);
-}
-
+        return response()->json([
+            'user' => $user,
+            'sessions' => $sessions,
+            'groups' => $groups,
+        ]);
+    }
 
     public function create(): Response
     {
@@ -325,6 +321,487 @@ class UserController extends Controller
         );
     }
 
-    
+public function import(
+    KeycloakService $keycloakService
+): \Inertia\Response {
+    $groups =
+        $keycloakService->getAllGroups();
+
+    return \Inertia\Inertia::render(
+        'Admin/Users/Import',
+        [
+            'groups' => $groups,
+        ]
+    );
 }
 
+
+    public function downloadTemplate()
+    {
+        $path = public_path(
+            'templates/template_users.xlsx'
+        );
+
+        abort_unless(
+            File::exists($path),
+            404,
+            'Template Excel tidak ditemukan.'
+        );
+
+        return response()->download(
+            $path,
+            'template_users.xlsx'
+        );
+    }
+
+    public function importPreview(
+        Request $request
+    ): JsonResponse {
+        $validated = $request->validate([
+            'file' => [
+                'required',
+                'file',
+                'mimes:xlsx,xls',
+                'max:10240',
+            ],
+        ]);
+
+        $file = $validated['file'];
+
+        $filename = Str::uuid()
+            .'.'
+            .$file->getClientOriginalExtension();
+
+        $path = $file->storeAs(
+            'imports',
+            $filename
+        );
+
+        return response()->json([
+            'message' => 'File berhasil diupload.',
+            'data' => [
+                'filename' => $filename,
+                'path' => $path,
+            ],
+        ]);
+    }
+
+    public function importSubmit(
+    Request $request,
+    KeycloakService $keycloakService
+): JsonResponse {
+    $validated = $request->validate([
+        'group_ids' => [
+            'required',
+            'array',
+            'min:1',
+        ],
+
+        'group_ids.*' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'data' => [
+            'required',
+            'array',
+            'min:1',
+        ],
+
+        'data.*.nim' => [
+            'required',
+            'string',
+            'max:100',
+        ],
+
+        'data.*.username' => [
+            'required',
+            'string',
+            'max:150',
+        ],
+
+        'data.*.nama' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'data.*.email' => [
+            'nullable',
+            'string',
+            'max:255',
+        ],
+
+        'data.*.first_name' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'data.*.last_name' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'data.*.status' => [
+            'nullable',
+            'string',
+        ],
+    ]);
+
+    $data = $validated['data'];
+
+    $groupIds = collect(
+        $validated['group_ids']
+    )
+        ->map(
+            fn ($groupId) =>
+                trim((string) $groupId)
+        )
+        ->filter()
+        ->unique()
+        ->values();
+
+    /*
+     * Pastikan semua group benar-benar ada
+     * di Keycloak.
+     */
+    $groups = $keycloakService->getAllGroups();
+
+    $selectedGroups = collect($groups)
+        ->filter(
+            fn ($group) =>
+                $groupIds->contains(
+                    (string) (
+                        $group['id'] ?? ''
+                    )
+                )
+        )
+        ->values();
+
+    /*
+     * Pastikan jumlah group yang ditemukan
+     * sama dengan jumlah group yang dipilih.
+     */
+    if (
+        $selectedGroups->count()
+        !== $groupIds->count()
+    ) {
+        return response()->json([
+            'success' => false,
+
+            'message' =>
+                'Salah satu group yang dipilih '
+                . 'tidak ditemukan di Keycloak.',
+        ], 422);
+    }
+
+    $results = [];
+
+    $successCount = 0;
+    $duplicateCount = 0;
+    $errorCount = 0;
+
+    foreach ($data as $index => $item) {
+        $username = trim(
+            (string) (
+                $item['username']
+                ?? ''
+            )
+        );
+
+        $rowNumber = $item['row']
+            ?? ($index + 2);
+
+        try {
+            /*
+             * Hanya data valid yang diproses.
+             */
+            $status = strtolower(
+                trim(
+                    (string) (
+                        $item['status']
+                        ?? 'valid'
+                    )
+                )
+            );
+
+            if ($status !== 'valid') {
+                $results[] = [
+                    ...$item,
+
+                    'row' => $rowNumber,
+
+                    'status' => 'error',
+
+                    'message' =>
+                        'Data tidak berstatus valid.',
+                ];
+
+                $errorCount++;
+
+                continue;
+            }
+
+            /*
+             * Username wajib ada.
+             */
+            if ($username === '') {
+                $results[] = [
+                    ...$item,
+
+                    'row' => $rowNumber,
+
+                    'status' => 'error',
+
+                    'message' =>
+                        'Username tidak boleh kosong.',
+                ];
+
+                $errorCount++;
+
+                continue;
+            }
+
+            /*
+             * Password awal = username.
+             */
+            $defaultPassword = $username;
+
+            /*
+             * Cek username di Keycloak.
+             */
+            $existingUser =
+                $keycloakService
+                    ->findUserByUsername(
+                        $username
+                    );
+
+            if ($existingUser) {
+                $results[] = [
+                    ...$item,
+
+                    'row' => $rowNumber,
+
+                    'status' => 'existing',
+
+                    'message' =>
+                        'Username sudah ada di Keycloak.',
+
+                    'keycloak_id' =>
+                        $existingUser['id']
+                        ?? null,
+                ];
+
+                $duplicateCount++;
+
+                continue;
+            }
+
+            /*
+             * ==========================================================
+             * CREATE USER
+             * ==========================================================
+             */
+            $createdUser =
+                $keycloakService->createUser([
+                    'username' =>
+                        $username,
+
+                    'firstName' =>
+                        trim(
+                            (string) (
+                                $item['first_name']
+                                ?? ''
+                            )
+                        ),
+
+                    'lastName' =>
+                        trim(
+                            (string) (
+                                $item['last_name']
+                                ?? ''
+                            )
+                        ),
+
+                    'email' =>
+                        trim(
+                            (string) (
+                                $item['email']
+                                ?? ''
+                            )
+                        ),
+
+                    'enabled' => true,
+
+                    'emailVerified' => false,
+
+                    /*
+                     * Password awal sama dengan username.
+                     */
+                    'password' =>
+                        $defaultPassword,
+
+                    /*
+                     * User wajib mengganti password
+                     * saat login pertama.
+                     */
+                    'requiredActions' => [
+                        'UPDATE_PASSWORD',
+                    ],
+                ]);
+
+            $createdUserId =
+                $createdUser['id']
+                ?? null;
+
+            if (! $createdUserId) {
+                throw new \RuntimeException(
+                    'User berhasil dibuat tetapi ID user tidak ditemukan.'
+                );
+            }
+
+            /*
+             * ==========================================================
+             * ADD USER TO ALL SELECTED GROUPS
+             * ==========================================================
+             */
+            $userGroups = [];
+
+            foreach ($selectedGroups as $selectedGroup) {
+                $selectedGroupId =
+                    (string) (
+                        $selectedGroup['id']
+                        ?? ''
+                    );
+
+                if ($selectedGroupId === '') {
+                    continue;
+                }
+
+                $keycloakService->addUserToGroup(
+                    $createdUserId,
+                    $selectedGroupId
+                );
+
+                $userGroups[] = [
+                    'id' =>
+                        $selectedGroupId,
+
+                    'name' =>
+                        $selectedGroup['name']
+                        ?? null,
+
+                    'path' =>
+                        $selectedGroup['path']
+                        ?? null,
+                ];
+            }
+
+            /*
+             * Pastikan minimal satu group berhasil
+             * diterapkan.
+             */
+            if (! count($userGroups)) {
+                throw new \RuntimeException(
+                    'User berhasil dibuat tetapi tidak ada group yang berhasil diterapkan.'
+                );
+            }
+
+            /*
+             * User berhasil dibuat dan
+             * dimasukkan ke seluruh group.
+             */
+            $results[] = [
+                ...$item,
+
+                'row' => $rowNumber,
+
+                'status' => 'success',
+
+                'message' =>
+                    'User berhasil dibuat dan '
+                    . 'dimasukkan ke '
+                    . count($userGroups)
+                    . ' group.',
+
+                'keycloak_id' =>
+                    $createdUserId,
+
+                'groups' =>
+                    $userGroups,
+            ];
+
+            $successCount++;
+        } catch (\Throwable $e) {
+            report($e);
+
+            $results[] = [
+                ...$item,
+
+                'row' => $rowNumber,
+
+                'status' => 'error',
+
+                'message' =>
+                    $e->getMessage()
+                    ?: 'Gagal membuat user di Keycloak.',
+            ];
+
+            $errorCount++;
+        }
+    }
+
+    $total = count($data);
+
+    return response()->json([
+        'success' => true,
+
+        'message' =>
+            'Submit selesai. '
+            . "{$successCount} sukses, "
+            . "{$duplicateCount} sudah ada, "
+            . "{$errorCount} error.",
+
+        'summary' => [
+            'total' =>
+                $total,
+
+            'success' =>
+                $successCount,
+
+            'duplicate' =>
+                $duplicateCount,
+
+            'error' =>
+                $errorCount,
+        ],
+
+        'groups' =>
+            $selectedGroups
+                ->map(
+                    fn ($group) => [
+                        'id' =>
+                            $group['id']
+                            ?? null,
+
+                        'name' =>
+                            $group['name']
+                            ?? null,
+
+                        'path' =>
+                            $group['path']
+                            ?? null,
+                    ]
+                )
+                ->values()
+                ->all(),
+
+        'data' =>
+            $results,
+    ]);
+}
+
+}

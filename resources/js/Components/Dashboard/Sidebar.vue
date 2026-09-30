@@ -22,7 +22,11 @@ const emit = defineEmits([
 ])
 
 const isActive = (url) => {
-    return page.url === url
+    const currentUrl = page.url.split('?')[0].replace(/\/$/, '')
+    const targetUrl = url.replace(/\/$/, '')
+
+    return currentUrl === targetUrl ||
+        currentUrl.startsWith(`${targetUrl}/`)
 }
 
 const isAdmin = () => {
