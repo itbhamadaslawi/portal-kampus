@@ -34,6 +34,11 @@ RUN composer install \
     --optimize-autoloader \
     --no-interaction
 
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN mkdir -p /var/www/public/banners \
+    && chown -R www-data:www-data \
+        /var/www/storage \
+        /var/www/bootstrap/cache \
+        /var/www/public/banners \
+    && chmod 755 /var/www/public/banners
 
 CMD ["php-fpm"]
