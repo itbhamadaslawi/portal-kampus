@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\ApplicationController;
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -53,12 +54,24 @@ Route::post('/auth/backchannel-logout', [
 | Authenticated Routes
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('keycloak.auth')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/dashboard', [
         DashboardController::class,
         'index',
     ])->name('dashboard');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Account
+    |--------------------------------------------------------------------------
+    */
 
     Route::resource('akun', AccountController::class)
         ->only(['index']);
@@ -85,10 +98,22 @@ Route::middleware('keycloak.auth')->group(function () {
         'update',
     ])->name('account.profile.update');
 
-    // admin
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN
+    |--------------------------------------------------------------------------
+    */
+
     Route::prefix('admin')
         ->name('admin.')
         ->group(function () {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Users
+            |--------------------------------------------------------------------------
+            */
+
             Route::get('/users', [
                 UserController::class,
                 'index',
@@ -99,11 +124,6 @@ Route::middleware('keycloak.auth')->group(function () {
                 'data',
             ])->name('users.data');
 
-            Route::get('/users/{userId}/json', [
-                UserController::class,
-                'json',
-            ])->name('users.json');
-
             Route::get('/users/create', [
                 UserController::class,
                 'create',
@@ -113,6 +133,11 @@ Route::middleware('keycloak.auth')->group(function () {
                 UserController::class,
                 'store',
             ])->name('users.store');
+
+            Route::get('/users/{userId}/json', [
+                UserController::class,
+                'json',
+            ])->name('users.json');
 
             Route::get('/users/{userId}', [
                 UserController::class,
@@ -163,11 +188,88 @@ Route::middleware('keycloak.auth')->group(function () {
                 UserController::class,
                 'removeGroup',
             ])->name('users.groups.remove');
-        });
 
-    Route::prefix('admin')
-        ->name('admin.')
-        ->group(function () {
+            /*
+|--------------------------------------------------------------------------
+| Banners
+|--------------------------------------------------------------------------
+*/
+
+            Route::get('/banners', [
+                BannerController::class,
+                'index',
+            ])->name('banners.index');
+
+            Route::get('/banners/data', [
+                BannerController::class,
+                'data',
+            ])->name('banners.data');
+
+            /*
+             * Semua group dari Keycloak
+             *
+             * HARUS sebelum /banners/{banner}
+             */
+            Route::get('/banners/groups', [
+                BannerController::class,
+                'groups',
+            ])->name('banners.groups');
+
+            /*
+             * Create banner
+             */
+            Route::post('/banners', [
+                BannerController::class,
+                'store',
+            ])->name('banners.store');
+
+            /*
+             * Group yang dipilih oleh banner tertentu
+             *
+             * HARUS sebelum /banners/{banner}
+             */
+            Route::get('/banners/{banner}/groups', [
+                BannerController::class,
+                'bannerGroups',
+            ])->name('banners.groups.show');
+
+            /*
+             * Detail / edit data banner
+             */
+            Route::get('/banners/{banner}', [
+                BannerController::class,
+                'show',
+            ])->name('banners.show');
+
+            /*
+             * Update banner
+             */
+            Route::post('/banners/{banner}', [
+                BannerController::class,
+                'update',
+            ])->name('banners.update');
+
+            /*
+             * Update status banner
+             */
+            Route::patch('/banners/{banner}/status', [
+                BannerController::class,
+                'updateStatus',
+            ])->name('banners.status');
+
+            /*
+             * Delete banner
+             */
+            Route::delete('/banners/{banner}', [
+                BannerController::class,
+                'destroy',
+            ])->name('banners.destroy');
+
+            /*
+            |--------------------------------------------------------------------------
+            | Applications
+            |--------------------------------------------------------------------------
+            */
 
             Route::get('/applications', [
                 ApplicationController::class,
@@ -179,11 +281,17 @@ Route::middleware('keycloak.auth')->group(function () {
                 'data',
             ])->name('applications.data');
 
+            /*
+             * Semua group dari Keycloak
+             */
             Route::get('/applications/groups', [
                 ApplicationController::class,
                 'groups',
             ])->name('applications.groups');
 
+            /*
+             * Group yang dimiliki application tertentu
+             */
             Route::get('/applications/{application}/groups', [
                 ApplicationController::class,
                 'applicationGroups',
@@ -219,7 +327,6 @@ Route::middleware('keycloak.auth')->group(function () {
                 'destroy',
             ])->name('applications.destroy');
         });
-
 });
 
 /*

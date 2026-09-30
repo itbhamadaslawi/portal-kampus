@@ -5,6 +5,7 @@ import { ref } from 'vue'
 import Sidebar from '@/Components/Dashboard/Sidebar.vue'
 import Topbar from '@/Components/Dashboard/Topbar.vue'
 import WelcomeCard from '@/Components/Dashboard/WelcomeCard.vue'
+import BannerCarousel from '@/Components/Dashboard/BannerCarousel.vue'
 import ApplicationsGrid from '@/Components/Dashboard/ApplicationsGrid.vue'
 
 const sidebarOpen = ref(false)
@@ -17,6 +18,11 @@ defineProps({
     },
 
     applications: {
+        type: Array,
+        default: () => [],
+    },
+
+    banners: {
         type: Array,
         default: () => [],
     },
@@ -65,6 +71,11 @@ defineProps({
                 <!-- Welcome -->
                 <WelcomeCard
                     :user="user"
+                />
+
+                <!-- Banner -->
+                <BannerCarousel
+                    :banners="banners"
                 />
 
                 <!-- Applications -->

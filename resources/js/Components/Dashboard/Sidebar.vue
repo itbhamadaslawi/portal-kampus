@@ -203,7 +203,7 @@ const isAdmin = () => {
 
                 </Link>
 
-            
+
 
                 <!-- Applications -->
                 <Link href="/admin/applications" class="group flex h-11
@@ -251,6 +251,25 @@ const isAdmin = () => {
                         Sessions
                     </span>
 
+                </Link>
+
+                <Link href="/admin/banners" class="group flex h-11
+           items-center gap-3 rounded-lg px-3
+           text-sm font-medium
+           transition-colors" :class="isActive('/admin/banners')
+            ? 'bg-emerald-50 text-emerald-700'
+            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'" @click="emit('close')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                        stroke="currentColor" class="h-5 w-5 shrink-0">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="m3.5 16 5.2-5.2a2 2 0 0 1 2.8 0l1.4 1.4 1.6-1.6a2 2 0 0 1 2.8 0L21 14.3" />
+                    </svg>
+
+                    <span class="truncate">
+                        Banner
+                    </span>
                 </Link>
 
             </div>

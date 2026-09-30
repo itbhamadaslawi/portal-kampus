@@ -1,14 +1,14 @@
 {
-  "_DashboardLayout-Bl4Pwdk-.js": {
-    "file": "assets/DashboardLayout-Bl4Pwdk-.js",
+  "_DashboardLayout-D8zqksg4.js": {
+    "file": "assets/DashboardLayout-D8zqksg4.js",
     "name": "DashboardLayout",
     "imports": [
       "resources/js/app.js",
-      "_Topbar-hFNmqnaW.js"
+      "_Topbar-DvQopoWZ.js"
     ]
   },
-  "_Topbar-hFNmqnaW.js": {
-    "file": "assets/Topbar-hFNmqnaW.js",
+  "_Topbar-DvQopoWZ.js": {
+    "file": "assets/Topbar-DvQopoWZ.js",
     "name": "Topbar",
     "imports": [
       "resources/js/app.js"
@@ -46,15 +46,22 @@
     "file": "assets/instrument-sans-600-normal-B9e8oLYv.woff",
     "src": "_instrument-sans-600-normal-B9e8oLYv.woff"
   },
-  "_wrench-CPKbDNFn.js": {
-    "file": "assets/wrench-CPKbDNFn.js",
-    "name": "wrench",
+  "_users-round-DMqtTclw.js": {
+    "file": "assets/users-round-DMqtTclw.js",
+    "name": "users-round",
     "imports": [
       "resources/js/app.js"
     ]
   },
+  "_wrench-CB9ru2pc.js": {
+    "file": "assets/wrench-CB9ru2pc.js",
+    "name": "wrench",
+    "imports": [
+      "_users-round-DMqtTclw.js"
+    ]
+  },
   "resources/css/app.css": {
-    "file": "assets/app-CPzshN7T.css",
+    "file": "assets/app-0EL68bsp.css",
     "name": "app",
     "names": [
       "app.css"
@@ -63,37 +70,53 @@
     "isEntry": true
   },
   "resources/js/Pages/Account/Index.vue": {
-    "file": "assets/Index-JZfP9OyX.js",
+    "file": "assets/Index-Cc_XVAgg.js",
     "name": "Index",
     "src": "resources/js/Pages/Account/Index.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardLayout-Bl4Pwdk-.js",
+      "_DashboardLayout-D8zqksg4.js",
       "resources/js/app.js"
     ]
   },
   "resources/js/Pages/Admin/Applications/Index.vue": {
-    "file": "assets/Index-CuFms37D.js",
+    "file": "assets/Index-CLzH-o9_.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Applications/Index.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardLayout-Bl4Pwdk-.js",
+      "_DashboardLayout-D8zqksg4.js",
       "resources/js/app.js",
-      "_wrench-CPKbDNFn.js",
+      "_users-round-DMqtTclw.js",
+      "_wrench-CB9ru2pc.js",
       "__plugin-vue_export-helper-BDNMzG2s.js"
     ],
     "css": [
       "assets/Index-cAPueipj.css"
     ]
   },
+  "resources/js/Pages/Admin/Banners/Index.vue": {
+    "file": "assets/Index-Din0SNjc.js",
+    "name": "Index",
+    "src": "resources/js/Pages/Admin/Banners/Index.vue",
+    "isDynamicEntry": true,
+    "imports": [
+      "_DashboardLayout-D8zqksg4.js",
+      "resources/js/app.js",
+      "_users-round-DMqtTclw.js",
+      "__plugin-vue_export-helper-BDNMzG2s.js"
+    ],
+    "css": [
+      "assets/Index-CgADxqw_.css"
+    ]
+  },
   "resources/js/Pages/Admin/Users/Create.vue": {
-    "file": "assets/Create-Dnqq1Yjn.js",
+    "file": "assets/Create-Cceja84x.js",
     "name": "Create",
     "src": "resources/js/Pages/Admin/Users/Create.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardLayout-Bl4Pwdk-.js",
+      "_DashboardLayout-D8zqksg4.js",
       "resources/js/app.js",
       "__plugin-vue_export-helper-BDNMzG2s.js"
     ],
@@ -102,12 +125,12 @@
     ]
   },
   "resources/js/Pages/Admin/Users/Edit.vue": {
-    "file": "assets/Edit-Coy3vY7e.js",
+    "file": "assets/Edit-CUp9XqoF.js",
     "name": "Edit",
     "src": "resources/js/Pages/Admin/Users/Edit.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardLayout-Bl4Pwdk-.js",
+      "_DashboardLayout-D8zqksg4.js",
       "resources/js/app.js",
       "__plugin-vue_export-helper-BDNMzG2s.js"
     ],
@@ -116,12 +139,12 @@
     ]
   },
   "resources/js/Pages/Admin/Users/Index.vue": {
-    "file": "assets/Index-Bw2Oc0-l.js",
+    "file": "assets/Index-Gn10sayO.js",
     "name": "Index",
     "src": "resources/js/Pages/Admin/Users/Index.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardLayout-Bl4Pwdk-.js",
+      "_DashboardLayout-D8zqksg4.js",
       "resources/js/app.js",
       "__plugin-vue_export-helper-BDNMzG2s.js"
     ],
@@ -130,7 +153,7 @@
     ]
   },
   "resources/js/Pages/Auth/SsoCallback.vue": {
-    "file": "assets/SsoCallback-DsisUTzj.js",
+    "file": "assets/SsoCallback-Cm_N_r0Z.js",
     "name": "SsoCallback",
     "src": "resources/js/Pages/Auth/SsoCallback.vue",
     "isDynamicEntry": true,
@@ -139,18 +162,23 @@
     ]
   },
   "resources/js/Pages/Dashboard.vue": {
-    "file": "assets/Dashboard-CARhdOeu.js",
+    "file": "assets/Dashboard-DKBJf43j.js",
     "name": "Dashboard",
     "src": "resources/js/Pages/Dashboard.vue",
     "isDynamicEntry": true,
     "imports": [
       "resources/js/app.js",
-      "_Topbar-hFNmqnaW.js",
-      "_wrench-CPKbDNFn.js"
+      "_Topbar-DvQopoWZ.js",
+      "_users-round-DMqtTclw.js",
+      "_wrench-CB9ru2pc.js",
+      "__plugin-vue_export-helper-BDNMzG2s.js"
+    ],
+    "css": [
+      "assets/Dashboard-3vxrxrId.css"
     ]
   },
   "resources/js/Pages/Errors/404.vue": {
-    "file": "assets/404-vjpFAtXz.js",
+    "file": "assets/404-BrlCSOeY.js",
     "name": "404",
     "src": "resources/js/Pages/Errors/404.vue",
     "isDynamicEntry": true,
@@ -159,7 +187,7 @@
     ]
   },
   "resources/js/Pages/Login.vue": {
-    "file": "assets/Login-CgY226BG.js",
+    "file": "assets/Login-C9YeQpGk.js",
     "name": "Login",
     "src": "resources/js/Pages/Login.vue",
     "isDynamicEntry": true,
@@ -168,23 +196,24 @@
     ]
   },
   "resources/js/Pages/Sessions/Index.vue": {
-    "file": "assets/Index-Cl1QMPoy.js",
+    "file": "assets/Index-BOZqutvS.js",
     "name": "Index",
     "src": "resources/js/Pages/Sessions/Index.vue",
     "isDynamicEntry": true,
     "imports": [
-      "_DashboardLayout-Bl4Pwdk-.js",
+      "_DashboardLayout-D8zqksg4.js",
       "resources/js/app.js"
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CFeAB7rz.js",
+    "file": "assets/app-BYanPQaD.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
       "resources/js/Pages/Account/Index.vue",
       "resources/js/Pages/Admin/Applications/Index.vue",
+      "resources/js/Pages/Admin/Banners/Index.vue",
       "resources/js/Pages/Admin/Users/Create.vue",
       "resources/js/Pages/Admin/Users/Edit.vue",
       "resources/js/Pages/Admin/Users/Index.vue",
@@ -195,7 +224,7 @@
       "resources/js/Pages/Sessions/Index.vue"
     ],
     "css": [
-      "assets/app-CPzshN7T.css"
+      "assets/app-0EL68bsp.css"
     ]
   }
 }
