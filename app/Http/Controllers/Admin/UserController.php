@@ -7,10 +7,10 @@ use App\Services\KeycloakService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
-use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -488,12 +488,6 @@ class UserController extends Controller
                 'min:1',
             ],
 
-            'data.*.nim' => [
-                'required',
-                'string',
-                'max:100',
-            ],
-
             'data.*.username' => [
                 'required',
                 'string',
@@ -956,112 +950,239 @@ class UserController extends Controller
         ]);
     }
 
-
     public function syncSiakad(
+        Request $request
+    ): JsonResponse {
+        $validated = $request->validate([
+            'type' => [
+                'required',
+                'in:dosen,mahasiswa',
+            ],
+            'limit' => [
+                'required',
+                'integer',
+                'in:50,100',
+            ],
+            'batch' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+        ]);
+
+        $type = $validated['type'];
+        $limit = $validated['limit'];
+        $batch = $validated['batch'];
+
+        $start = (($batch - 1) * $limit) + 1;
+
+        $end = $start + $limit - 1;
+
+        $apiPageSize = 10;
+
+        $startPage = (int) ceil(
+            $start / $apiPageSize
+        );
+
+        $endPage = (int) ceil(
+            $end / $apiPageSize
+        );
+
+        $allData = [];
+
+        for (
+            $page = $startPage;
+            $page <= $endPage;
+            $page++
+        ) {
+            $response = Http::acceptJson()
+                ->timeout(30)
+                ->get(
+                    rtrim(
+                        config('services.siakad.base_url'),
+                        '/'
+                    ).'/'.$type,
+                    [
+                        'api_token' => config(
+                            'services.siakad.api_token'
+                        ),
+                        'page' => $page,
+                    ]
+                );
+
+            if ($response->failed()) {
+                return response()->json([
+                    'message' => 'Gagal mengambil data dari SIAKAD.',
+                    'status' => $response->status(),
+                ], 502);
+            }
+
+            $json = $response->json();
+
+            $pageData =
+                $json['data']['data'] ?? [];
+
+            if (is_array($pageData)) {
+                $allData = array_merge(
+                    $allData,
+                    $pageData
+                );
+            }
+        }
+
+        $offset = $start - (
+            (($startPage - 1) * $apiPageSize) + 1
+        );
+
+        $data = array_slice(
+            $allData,
+            $offset,
+            $limit
+        );
+
+        return response()->json([
+            'message' => 'Data SIAKAD berhasil diambil.',
+            'type' => $type,
+            'limit' => $limit,
+            'batch' => $batch,
+            'start' => $start,
+            'end' => min(
+                $end,
+                $start + count($data) - 1
+            ),
+            'data' => $data,
+        ]);
+    }
+
+    public function siakadByIdentifier(
     Request $request
 ): JsonResponse {
     $validated = $request->validate([
         'type' => [
             'required',
-            'in:dosen,mahasiswa',
+            'in:mahasiswa,dosen',
         ],
-        'limit' => [
+        'identifier' => [
             'required',
-            'integer',
-            'in:50,100',
-        ],
-        'batch' => [
-            'required',
-            'integer',
-            'min:1',
+            'string',
+            'max:100',
         ],
     ]);
 
     $type = $validated['type'];
-    $limit = $validated['limit'];
-    $batch = $validated['batch'];
 
-    $start = (($batch - 1) * $limit) + 1;
-
-    $end = $start + $limit - 1;
-
-    $apiPageSize = 10;
-
-    $startPage = (int) ceil(
-        $start / $apiPageSize
+    $identifier = strtoupper(
+        trim($validated['identifier'])
     );
 
-    $endPage = (int) ceil(
-        $end / $apiPageSize
-    );
+    if ($type === 'mahasiswa') {
+        $endpoint = 'mahasiswa';
 
-    $allData = [];
+        $parameter = [
+            'nim' => $identifier,
+        ];
+    } else {
+        $endpoint = 'dosen';
 
-    for (
-        $page = $startPage;
-        $page <= $endPage;
-        $page++
-    ) {
-        $response = Http::acceptJson()
-            ->timeout(30)
-            ->get(
-                rtrim(
-                    config('services.siakad.base_url'),
-                    '/'
-                ).'/'.$type,
+        $parameter = [
+            'kode_dosen' => $identifier,
+        ];
+    }
+
+    $response = Http::acceptJson()
+        ->timeout(30)
+        ->get(
+            rtrim(
+                config('services.siakad.base_url'),
+                '/'
+            ).'/'.$endpoint,
+            array_merge(
+                $parameter,
                 [
                     'api_token' => config(
                         'services.siakad.api_token'
                     ),
-                    'page' => $page,
                 ]
-            );
+            )
+        );
 
-        if ($response->failed()) {
-            return response()->json([
-                'message' =>
-                    'Gagal mengambil data dari SIAKAD.',
-                'status' => $response->status(),
-            ], 502);
-        }
-
-        $json = $response->json();
-
-        $pageData =
-            $json['data']['data'] ?? [];
-
-        if (is_array($pageData)) {
-            $allData = array_merge(
-                $allData,
-                $pageData
-            );
-        }
+    if ($response->failed()) {
+        return response()->json([
+            'message' =>
+                'Gagal mengambil data dari SIAKAD.',
+            'status' => $response->status(),
+        ], 502);
     }
 
-    $offset = $start - (
-        (($startPage - 1) * $apiPageSize) + 1
+    $json = $response->json();
+
+    $data = $json['data'] ?? [];
+
+    if (
+        isset($data['data']) &&
+        is_array($data['data'])
+    ) {
+        $items = $data['data'];
+    } elseif (is_array($data)) {
+        $items = $data;
+    } else {
+        $items = [];
+    }
+
+    $item = $items[0] ?? null;
+
+    if (! $item) {
+        return response()->json([
+            'message' =>
+                $type === 'mahasiswa'
+                    ? 'Mahasiswa dengan NIM tersebut tidak ditemukan.'
+                    : 'Dosen dengan kode tersebut tidak ditemukan.',
+        ], 404);
+    }
+
+    $nama = $type === 'mahasiswa'
+        ? ($item['nama_mahasiswa'] ?? '')
+        : ($item['nama_dosen'] ?? '');
+
+    $nama = trim(
+        preg_replace(
+            '/\s+/',
+            ' ',
+            (string) $nama
+        )
     );
 
-    $data = array_slice(
-        $allData,
-        $offset,
-        $limit
-    );
+    $nama = strtoupper($nama);
+
+    $parts = $nama !== ''
+        ? explode(' ', $nama)
+        : [];
+
+    $firstName = $parts[0] ?? '';
+
+    $lastName = count($parts) > 1
+        ? implode(
+            ' ',
+            array_slice($parts, 1)
+        )
+        : '';
+
+    $username = $type === 'mahasiswa'
+        ? ($item['nim'] ?? '')
+        : ($item['kode_dosen'] ?? '');
 
     return response()->json([
         'message' =>
-            'Data SIAKAD berhasil diambil.',
-        'type' => $type,
-        'limit' => $limit,
-        'batch' => $batch,
-        'start' => $start,
-        'end' => min(
-            $end,
-            $start + count($data) - 1
-        ),
-        'data' => $data,
+            $type === 'mahasiswa'
+                ? 'Data mahasiswa berhasil diambil.'
+                : 'Data dosen berhasil diambil.',
+        'data' => [
+            'type' => $type,
+            'username' => $username,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'email' => $item['email'] ?? '',
+        ],
     ]);
 }
-
-
 }

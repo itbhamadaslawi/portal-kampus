@@ -142,6 +142,11 @@ Route::middleware('keycloak.auth')->group(function () {
                 [UserController::class, 'syncSiakad']
             )->name('admin.users.import.sync');
 
+            Route::get(
+                '/users/import/siakad-identifier',
+                [UserController::class, 'siakadByIdentifier']
+            )->name('admin.users.import.siakad-identifier');
+
             Route::post('/users/import/submit', [
                 UserController::class,
                 'importSubmit',
