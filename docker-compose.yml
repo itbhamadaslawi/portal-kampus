@@ -29,6 +29,9 @@ services:
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
       KEYCLOAK_REDIRECT_URI: ${KEYCLOAK_REDIRECT_URI}
 
+      SIAKAD_BASE_URL: ${SIAKAD_BASE_URL}
+      SIAKAD_API_TOKEN: ${SIAKAD_API_TOKEN}
+
     volumes:
       - portal_banners:/var/www/public/banners
 

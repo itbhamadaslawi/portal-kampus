@@ -14,6 +14,8 @@ const fileInput = ref(null)
 const selectedFile = ref(null)
 const previewData = ref([])
 
+const importSource = ref('excel')
+
 const loadingPreview = ref(false)
 const loadingSync = ref(false)
 const loadingSubmit = ref(false)
@@ -26,8 +28,68 @@ const errorMessage = ref('')
 const currentPage = ref(1)
 const perPage = ref(10)
 
-const syncDateFrom = ref('')
-const syncDateTo = ref('')
+const syncType = ref('')
+const syncLimit = ref(100)
+const syncBatch = ref(1)
+const syncTotal = ref(0)
+
+const syncTotalBatches = computed(() => {
+    if (!syncTotal.value || !syncLimit.value) {
+        return 0
+    }
+
+    return Math.ceil(
+        syncTotal.value / syncLimit.value
+    )
+})
+
+const loadSiakadTotal = async () => {
+    if (!syncType.value) {
+        syncTotal.value = 0
+        syncBatch.value = 1
+        return
+    }
+
+    loadingSync.value = true
+
+    try {
+        const response = await axios.get(
+            '/admin/users/import/siakad-total',
+            {
+                params: {
+                    type: syncType.value,
+                },
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            }
+        )
+
+        syncTotal.value = Number(
+            response.data?.total ?? 0
+        )
+
+        syncBatch.value = 1
+
+
+    } catch (error) {
+        syncTotal.value = 0
+        syncBatch.value = 1
+
+        console.error(
+            'SIakad total error:',
+            error.response?.data || error
+        )
+
+        errorMessage.value =
+            error.response?.data?.message ||
+            'Total data SIAKAD gagal diambil.'
+    } finally {
+        loadingSync.value = false
+    }
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -240,7 +302,6 @@ const previewExcel = async () => {
         }
 
         const requiredColumns = [
-            'nim',
             'username',
             'nama',
             'first_name',
@@ -286,29 +347,24 @@ const previewExcel = async () => {
             }
         )
 
+
         const mappedData =
             rawData.map(
                 (row, index) => {
-                    const nim =
-                        normalizeValue(
-                            row[
-                            columnMap.nim
-                            ]
-                        )
 
                     const username =
                         normalizeValue(
                             row[
                             columnMap.username
                             ]
-                        )
+                        ).toUpperCase()
 
                     const nama =
                         normalizeValue(
                             row[
                             columnMap.nama
                             ]
-                        )
+                        ).toUpperCase()
 
                     const email =
                         columnMap.email
@@ -324,22 +380,16 @@ const previewExcel = async () => {
                             row[
                             columnMap.first_name
                             ]
-                        )
+                        ).toUpperCase()
 
                     const lastName =
                         normalizeValue(
                             row[
                             columnMap.last_name
                             ]
-                        )
+                        ).toUpperCase()
 
                     const errors = []
-
-                    if (!nim) {
-                        errors.push(
-                            'NIM wajib diisi'
-                        )
-                    }
 
                     if (!username) {
                         errors.push(
@@ -368,7 +418,7 @@ const previewExcel = async () => {
                     return {
                         id: `${Date.now()}-${index}`,
                         row: index + 2,
-                        nim,
+
                         username,
                         nama,
                         email,
@@ -376,18 +426,21 @@ const previewExcel = async () => {
                             firstName,
                         last_name:
                             lastName,
-                        status: errors.length
-                            ? 'error'
-                            : 'valid',
+
+                        status:
+                            errors.length
+                                ? 'error'
+                                : 'valid',
+
                         message:
                             errors.length
-                                ? errors.join(
-                                    ', '
-                                )
+                                ? errors.join(', ')
                                 : 'Data valid',
                     }
                 }
             )
+
+
 
         previewData.value = mappedData
         currentPage.value = 1
@@ -413,19 +466,56 @@ const previewExcel = async () => {
 |--------------------------------------------------------------------------
 */
 
+const splitName = (name) => {
+    const cleanName = String(name || '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toUpperCase()
+
+    if (!cleanName) {
+        return {
+            first_name: '',
+            last_name: '',
+        }
+    }
+
+    const parts = cleanName.split(' ')
+
+    if (parts.length === 1) {
+        return {
+            first_name: parts[0],
+            last_name: '',
+        }
+    }
+
+    return {
+        first_name: parts[0],
+        last_name: parts
+            .slice(1)
+            .join(' '),
+    }
+}
+
 const syncSiakad = async () => {
     closeMessages()
 
-    if (!syncDateFrom.value || !syncDateTo.value) {
+    if (!syncType.value) {
         errorMessage.value =
-            'Tanggal dari dan tanggal sampai wajib diisi.'
+            'Jenis pengguna wajib dipilih.'
 
         return
     }
 
-    if (syncDateFrom.value > syncDateTo.value) {
+    if (!syncLimit.value) {
         errorMessage.value =
-            'Tanggal dari tidak boleh lebih besar dari tanggal sampai.'
+            'Jumlah data wajib dipilih.'
+
+        return
+    }
+
+    if (!syncBatch.value) {
+        errorMessage.value =
+            'Batch wajib dipilih.'
 
         return
     }
@@ -437,9 +527,21 @@ const syncSiakad = async () => {
         const response = await axios.post(
             '/admin/users/import/sync',
             {
-                date_from: syncDateFrom.value,
-                date_to: syncDateTo.value,
+                type: syncType.value,
+                limit: syncLimit.value,
+                batch: syncBatch.value,
+            },
+            {
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
             }
+        )
+
+        console.log(
+            'RESPONSE SIAKAD:',
+            response.data
         )
 
         const data =
@@ -448,31 +550,54 @@ const syncSiakad = async () => {
                 : []
 
         previewData.value =
-            data.map((item, index) => ({
-                id:
-                    item.id ??
-                    `${Date.now()}-${index}`,
-                row:
-                    item.row ??
-                    index + 1,
-                nim:
-                    item.nim ?? '',
-                username:
-                    item.username ?? '',
-                nama:
-                    item.nama ?? '',
-                email:
-                    item.email ?? '',
-                first_name:
-                    item.first_name ?? '',
-                last_name:
-                    item.last_name ?? '',
-                status:
-                    item.status ?? 'valid',
-                message:
-                    item.message ??
-                    'Data valid',
-            }))
+            data.map((item, index) => {
+                const nama =
+                    syncType.value === 'dosen'
+                        ? String(
+                            item.nama_dosen ?? ''
+                        ).trim().toUpperCase()
+                        : String(
+                            item.nama_mahasiswa ?? ''
+                        ).trim().toUpperCase()
+
+                const nameParts =
+                    splitName(nama)
+
+                return {
+                    id:
+                        item.id ??
+                        `${Date.now()}-${index}`,
+
+                    row:
+                        response.data?.start
+                            ? response.data.start + index
+                            : index + 1,
+
+
+                    username:
+                        syncType.value === 'mahasiswa'
+                            ? item.nim ?? ''
+                            : item.kode_dosen ?? '',
+
+                    nama,
+
+                    email:
+                        item.email ?? '',
+
+                    first_name:
+                        nameParts.first_name,
+
+                    last_name:
+                        nameParts.last_name,
+
+                    status:
+                        'valid',
+
+                    message:
+                        item.message ??
+                        'Data valid',
+                }
+            })
 
         currentPage.value = 1
 
@@ -480,6 +605,11 @@ const syncSiakad = async () => {
             response.data?.message ||
             `Berhasil mengambil ${previewData.value.length} data dari SIAKAD.`
     } catch (error) {
+        console.error(
+            'SIAKAD SYNC ERROR:',
+            error.response?.data || error
+        )
+
         errorMessage.value =
             error.response?.data?.message ||
             'Sinkronisasi SIAKAD gagal.'
@@ -489,6 +619,8 @@ const syncSiakad = async () => {
         loadingSync.value = false
     }
 }
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -681,9 +813,24 @@ const openSubmitConfirm = async () => {
     if (!previewData.value.length) {
         errorMessage.value =
             'Belum ada data yang dapat dikirim ke SSO.'
-
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        })
         return
     }
+
+    if (validCount.value > 100) {
+        errorMessage.value =
+            'Maksimal 100 data yang dapat dikirim ke SSO dalam satu proses.'
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        })
+        return
+    }
+
+
 
     const validData =
         previewData.value.filter(
@@ -820,8 +967,7 @@ const confirmSubmit = async () => {
                         row:
                             item.row ??
                             index + 1,
-                        nim:
-                            item.nim ?? '',
+
                         username:
                             item.username ?? '',
                         nama:
@@ -1146,37 +1292,55 @@ onBeforeUnmount(() => {
             <!-- Import Options -->
             <!-- ========================================================= -->
 
+           
             <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
 
                 <!-- Excel -->
 
-                <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <div class="flex items-start gap-4">
+                <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition" :class="importSource === 'excel'
+                        ? 'ring-2 ring-green-100'
+                        : 'opacity-60'
+                    ">
+                    <div class="flex items-start justify-between gap-4">
 
-                        <div
-                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-600">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
-                                <path d="M14 2v6h6" />
-                            </svg>
+                        <div class="flex items-start gap-4">
+
+                            <div
+                                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-600">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+                                    <path d="M14 2v6h6" />
+                                </svg>
+                            </div>
+
+                            <div>
+                                <h2 class="text-base font-semibold text-gray-900">
+                                    Import dari Excel
+                                </h2>
+
+                                <p class="mt-1 text-sm leading-5 text-gray-500">
+                                    Upload file Excel sesuai template untuk melihat data sebelum dikirim.
+                                </p>
+                            </div>
+
                         </div>
 
-                        <div>
-                            <h2 class="text-base font-semibold text-gray-900">
-                                Import dari Excel
-                            </h2>
+                        <label class="flex shrink-0 cursor-pointer items-center gap-2">
+                            <input v-model="importSource" type="radio" value="excel"
+                                class="h-4 w-4 border-gray-300 text-green-600 focus:ring-green-500" />
 
-                            <p class="mt-1 text-sm leading-5 text-gray-500">
-                                Upload file Excel sesuai template untuk melihat data sebelum dikirim.
-                            </p>
-                        </div>
+                            <span class="text-sm font-medium text-gray-700">
+                                Pilih
+                            </span>
+                        </label>
+
                     </div>
 
                     <div class="mt-5 flex flex-wrap gap-2">
                         <button type="button"
-                            class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                            @click="downloadTemplate">
+                            class="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 bg-white px-3.5 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            :disabled="importSource !== 'excel'" @click="downloadTemplate">
                             Download Template
                         </button>
                     </div>
@@ -1185,8 +1349,8 @@ onBeforeUnmount(() => {
                         @change="handleFileChange" />
 
                     <div class="mt-4 rounded-xl border-2 border-dashed p-5 transition" :class="dragOver
-                        ? 'border-gray-500 bg-gray-50'
-                        : 'border-gray-200 bg-gray-50/50 hover:border-gray-300'
+                            ? 'border-gray-500 bg-gray-50'
+                            : 'border-gray-200 bg-gray-50/50 hover:border-gray-300'
                         " @dragover="handleDragOver" @dragleave="handleDragLeave" @drop="handleDrop">
                         <div v-if="!selectedFile" class="flex flex-col items-center justify-center py-5 text-center">
                             <div
@@ -1208,8 +1372,8 @@ onBeforeUnmount(() => {
                             </div>
 
                             <button type="button"
-                                class="mt-4 cursor-pointer rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
-                                @click="openFilePicker">
+                                class="mt-4 cursor-pointer rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="importSource !== 'excel'" @click="openFilePicker">
                                 Pilih File
                             </button>
                         </div>
@@ -1240,16 +1404,36 @@ onBeforeUnmount(() => {
                             </div>
 
                             <button type="button"
-                                class="shrink-0 cursor-pointer rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
-                                @click="removeFile">
+                                class="shrink-0 cursor-pointer rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                                :disabled="importSource !== 'excel'" @click="removeFile">
                                 ×
                             </button>
                         </div>
                     </div>
 
+                    <div class="mt-4 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3">
+                        <div class="flex gap-3">
+
+                            <svg class="mt-0.5 shrink-0 text-amber-500" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 8v5" />
+                                <path d="M12 16h.01" />
+                            </svg>
+
+                            <p class="text-xs leading-5 text-amber-700">
+                                Maksimal 100 data yang dapat dikirim ke SSO
+                                dalam satu proses.
+                            </p>
+
+                        </div>
+                    </div>
+
                     <button v-if="selectedFile" type="button"
                         class="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
-                        :disabled="loadingPreview ||
+                        :disabled="importSource !== 'excel' ||
+                            loadingPreview ||
                             loadingSync ||
                             loadingSubmit
                             " @click="previewExcel">
@@ -1264,62 +1448,164 @@ onBeforeUnmount(() => {
                     </button>
                 </div>
 
+
                 <!-- SIAKAD -->
 
-                <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <div class="flex items-start gap-4">
+                <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition" :class="importSource === 'siakad'
+                        ? 'ring-2 ring-blue-100'
+                        : 'opacity-60'
+                    ">
+                    <div class="flex items-start justify-between gap-4">
 
-                        <div
-                            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 10.5 12 5l9 5.5" />
-                                <path d="M5 10v8" />
-                                <path d="M9 12v6" />
-                                <path d="M15 12v6" />
-                                <path d="M19 10v8" />
-                                <path d="M3 18h18" />
-                                <path d="M12 5v1" />
-                            </svg>
+                        <div class="flex items-start gap-4">
+
+                            <div
+                                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 10.5 12 5l9 5.5" />
+                                    <path d="M5 10v8" />
+                                    <path d="M9 12v6" />
+                                    <path d="M15 12v6" />
+                                    <path d="M19 10v8" />
+                                    <path d="M3 18h18" />
+                                    <path d="M12 5v1" />
+                                </svg>
+                            </div>
+
+                            <div>
+                                <h2 class="text-base font-semibold text-gray-900">
+                                    Sinkronisasi SIAKAD
+                                </h2>
+
+                                <p class="mt-1 text-sm leading-5 text-gray-500">
+                                    Ambil data pengguna terbaru dari SIAKAD berdasarkan jenis pengguna.
+                                </p>
+                            </div>
+
                         </div>
 
-                        <div>
-                            <h2 class="text-base font-semibold text-gray-900">
-                                Sinkronisasi SIAKAD
-                            </h2>
+                        <label class="flex shrink-0 cursor-pointer items-center gap-2">
+                            <input v-model="importSource" type="radio" value="siakad"
+                                class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500" />
 
-                            <p class="mt-1 text-sm leading-5 text-gray-500">
-                                Ambil data pengguna terbaru dari SIAKAD berdasarkan rentang tanggal.
-                            </p>
-                        </div>
+                            <span class="text-sm font-medium text-gray-700">
+                                Pilih
+                            </span>
+                        </label>
+
                     </div>
 
-                    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
 
                         <div>
-                            <label for="sync-date-from" class="mb-1.5 block text-sm font-medium text-gray-700">
-                                Tanggal Dari
+                            <label for="sync-type" class="mb-1.5 block text-sm font-medium text-gray-700">
+                                Jenis Pengguna
                             </label>
 
-                            <input id="sync-date-from" v-model="syncDateFrom" type="date"
+                            <select id="sync-type" v-model="syncType"
                                 class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
-                                :disabled="loadingSync ||
+                                :disabled="importSource !== 'siakad' ||
+                                    loadingSync ||
                                     loadingPreview ||
                                     loadingSubmit
-                                    " />
+                                    " @change="loadSiakadTotal">
+                                <option value="">
+                                    Pilih jenis pengguna
+                                </option>
+
+                                <option value="dosen">
+                                    Dosen
+                                </option>
+
+                                <option value="mahasiswa">
+                                    Mahasiswa
+                                </option>
+                            </select>
                         </div>
 
                         <div>
-                            <label for="sync-date-to" class="mb-1.5 block text-sm font-medium text-gray-700">
-                                Tanggal Sampai
+                            <label for="sync-limit" class="mb-1.5 block text-sm font-medium text-gray-700">
+                                Jumlah Data
                             </label>
 
-                            <input id="sync-date-to" v-model="syncDateTo" type="date" :min="syncDateFrom"
+                            <select id="sync-limit" v-model.number="syncLimit"
                                 class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
-                                :disabled="loadingSync ||
+                                :disabled="importSource !== 'siakad' ||
+                                    loadingSync ||
                                     loadingPreview ||
                                     loadingSubmit
-                                    " />
+                                    ">
+                                <option :value="50">
+                                    50 Data
+                                </option>
+
+                                <option :value="100">
+                                    100 Data
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="sync-batch" class="mb-1.5 block text-sm font-medium text-gray-700">
+                                Batch
+                            </label>
+
+                            <select id="sync-batch" v-model.number="syncBatch"
+                                class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-gray-100"
+                                :disabled="importSource !== 'siakad' ||
+                                    loadingSync ||
+                                    loadingPreview ||
+                                    loadingSubmit ||
+                                    !syncType ||
+                                    !syncTotal
+                                    ">
+                                <option v-if="!syncTotal" :value="1">
+                                    Pilih jenis pengguna terlebih dahulu
+                                </option>
+
+                                <option v-for="batch in syncTotalBatches" :key="batch" :value="batch">
+                                    Batch {{ batch }}
+                                    —
+                                    Data
+                                    {{
+                                        ((batch - 1) * syncLimit) + 1
+                                    }}
+                                    -
+                                    {{
+                                        Math.min(
+                                            batch * syncLimit,
+                                            syncTotal
+                                        )
+                                    }}
+                                </option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div v-if="syncTotal" class="mt-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">
+                                    Data SIAKAD
+                                </p>
+
+                                <p class="mt-0.5 text-xs text-gray-500">
+                                    Total
+                                    {{ syncTotal.toLocaleString('id-ID') }}
+                                    data
+                                    ·
+                                    {{ syncTotalBatches }}
+                                    batch
+                                </p>
+                            </div>
+
+                            <div class="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                                Batch {{ syncBatch }}
+                            </div>
+
                         </div>
                     </div>
 
@@ -1330,26 +1616,29 @@ onBeforeUnmount(() => {
                                 fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
                                 stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="9" />
-
                                 <path d="M12 11v5" />
                                 <path d="M12 8h.01" />
                             </svg>
 
                             <p class="text-xs leading-5 text-blue-700">
-                                Pilih rentang tanggal data yang ingin diambil dari SIAKAD.
-                                Data hanya ditampilkan sebagai preview dan belum dibuat di
-                                SSO sampai tombol Submit ditekan.
+                                Pilih jenis pengguna, jumlah data, dan batch yang ingin
+                                diambil dari SIAKAD. Maksimal 100 data diambil dalam
+                                satu sinkronisasi. Data hanya ditampilkan sebagai preview
+                                dan belum dibuat di SSO sampai tombol Submit ditekan.
                             </p>
+
                         </div>
                     </div>
 
                     <button type="button"
                         class="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-blue-600 bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-                        :disabled="loadingSync ||
+                        :disabled="importSource !== 'siakad' ||
+                            loadingSync ||
                             loadingPreview ||
                             loadingSubmit ||
-                            !syncDateFrom ||
-                            !syncDateTo
+                            !syncType ||
+                            !syncLimit ||
+                            !syncBatch
                             " @click="syncSiakad">
                         <span v-if="loadingSync"
                             class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
@@ -1361,7 +1650,10 @@ onBeforeUnmount(() => {
                         }}
                     </button>
                 </div>
+
             </div>
+           
+
 
             <!-- ========================================================= -->
             <!-- Preview -->
@@ -1485,10 +1777,7 @@ onBeforeUnmount(() => {
                                     No
                                 </th>
 
-                                <th
-                                    class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                    NIM
-                                </th>
+
 
                                 <th
                                     class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -1547,9 +1836,7 @@ item,
                                     }}
                                 </td>
 
-                                <td class="px-5 py-3.5 text-sm font-medium text-gray-900">
-                                    {{ item.nim || '-' }}
-                                </td>
+
 
                                 <td class="px-5 py-3.5 text-sm font-medium text-gray-900">
                                     {{ item.username || '-' }}
@@ -1895,11 +2182,11 @@ item,
                                                     group => group.id === groupId
                                                 )?.path
                                                 ||
-                                            availableGroups.find(
-                                            group => group.id === groupId
-                                            )?.name
-                                            ||
-                                            groupId
+                                                availableGroups.find(
+                                                    group => group.id === groupId
+                                                )?.name
+                                                ||
+                                                groupId
                                             }}
                                         </div>
                                     </div>

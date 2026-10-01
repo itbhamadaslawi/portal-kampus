@@ -137,10 +137,10 @@ Route::middleware('keycloak.auth')->group(function () {
                 'importTemplate',
             ])->name('users.import.template');
 
-            Route::post('/users/import/sync', [
-                UserController::class,
-                'importSync',
-            ])->name('users.import.sync');
+            Route::post(
+                '/users/import/sync',
+                [UserController::class, 'syncSiakad']
+            )->name('admin.users.import.sync');
 
             Route::post('/users/import/submit', [
                 UserController::class,
@@ -168,10 +168,15 @@ Route::middleware('keycloak.auth')->group(function () {
                 'store',
             ])->name('users.store');
 
-          Route::get(
-    '/users/{userId}/edit-groups',
-    [UserController::class, 'editGroups']
-)->name('admin.users.edit-groups');
+            Route::get(
+                '/users/{userId}/edit-groups',
+                [UserController::class, 'editGroups']
+            )->name('admin.users.edit-groups');
+
+            Route::get(
+                '/users/import/siakad-total',
+                [UserController::class, 'siakadTotal']
+            )->name('admin.users.import.siakad-total');
 
             Route::get('/users/{userId}/json', [
                 UserController::class,

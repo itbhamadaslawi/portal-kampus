@@ -10,16 +10,14 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
-
-public function __construct(
+    public function __construct(
         protected KeycloakService $keycloakService
-    ) {
-    }
+    ) {}
 
-    
     public function index(): Response
     {
         return Inertia::render('Admin/Users/Index');
@@ -136,96 +134,96 @@ public function __construct(
     }
 
     public function update(
-    Request $request,
-    string $userId,
-    KeycloakService $keycloakService
-): JsonResponse {
-    $validated = $request->validate([
-        'firstName' => [
-            'required',
-            'string',
-            'max:100',
-        ],
-        'lastName' => [
-            'nullable',
-            'string',
-            'max:100',
-        ],
-        'email' => [
-            'nullable',
-            'email',
-            'max:255',
-        ],
-        'nickname' => [
-            'nullable',
-            'string',
-            'max:100',
-        ],
-        'group_ids' => [
-            'nullable',
-            'array',
-        ],
-        'group_ids.*' => [
-            'string',
-            'max:255',
-        ],
-    ]);
+        Request $request,
+        string $userId,
+        KeycloakService $keycloakService
+    ): JsonResponse {
+        $validated = $request->validate([
+            'firstName' => [
+                'required',
+                'string',
+                'max:100',
+            ],
+            'lastName' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
+            ],
+            'nickname' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
+            'group_ids' => [
+                'nullable',
+                'array',
+            ],
+            'group_ids.*' => [
+                'string',
+                'max:255',
+            ],
+        ]);
 
-    $groupIds = $validated['group_ids'] ?? [];
+        $groupIds = $validated['group_ids'] ?? [];
 
-    unset($validated['group_ids']);
+        unset($validated['group_ids']);
 
-    $user = $keycloakService->updateUser(
-        $userId,
-        $validated
-    );
-
-    $currentGroups =
-        $keycloakService->getUserGroups(
-            $userId
-        );
-
-    $currentGroupIds = collect($currentGroups)
-        ->pluck('id')
-        ->map(fn ($id) => (string) $id)
-        ->values()
-        ->all();
-
-    $selectedGroupIds = collect($groupIds)
-        ->map(fn ($id) => (string) $id)
-        ->unique()
-        ->values()
-        ->all();
-
-    $groupsToAdd = array_diff(
-        $selectedGroupIds,
-        $currentGroupIds
-    );
-
-    $groupsToRemove = array_diff(
-        $currentGroupIds,
-        $selectedGroupIds
-    );
-
-    foreach ($groupsToAdd as $groupId) {
-        $keycloakService->addUserToGroup(
+        $user = $keycloakService->updateUser(
             $userId,
-            $groupId
+            $validated
         );
-    }
 
-    foreach ($groupsToRemove as $groupId) {
-        $keycloakService->removeUserFromGroup(
-            $userId,
-            $groupId
+        $currentGroups =
+            $keycloakService->getUserGroups(
+                $userId
+            );
+
+        $currentGroupIds = collect($currentGroups)
+            ->pluck('id')
+            ->map(fn ($id) => (string) $id)
+            ->values()
+            ->all();
+
+        $selectedGroupIds = collect($groupIds)
+            ->map(fn ($id) => (string) $id)
+            ->unique()
+            ->values()
+            ->all();
+
+        $groupsToAdd = array_diff(
+            $selectedGroupIds,
+            $currentGroupIds
         );
-    }
 
-    return response()->json([
-        'message' => 'User berhasil diperbarui.',
-        'user' => $user,
-    ]);
-}
+        $groupsToRemove = array_diff(
+            $currentGroupIds,
+            $selectedGroupIds
+        );
+
+        foreach ($groupsToAdd as $groupId) {
+            $keycloakService->addUserToGroup(
+                $userId,
+                $groupId
+            );
+        }
+
+        foreach ($groupsToRemove as $groupId) {
+            $keycloakService->removeUserFromGroup(
+                $userId,
+                $groupId
+            );
+        }
+
+        return response()->json([
+            'message' => 'User berhasil diperbarui.',
+            'user' => $user,
+        ]);
+    }
 
     public function toggleStatus(
         string $userId,
@@ -306,28 +304,27 @@ public function __construct(
         ]);
     }
 
-   public function editGroups(
-    string $userId,
-    KeycloakService $keycloakService
-): JsonResponse {
-    $groups = $keycloakService->getAllGroups();
+    public function editGroups(
+        string $userId,
+        KeycloakService $keycloakService
+    ): JsonResponse {
+        $groups = $keycloakService->getAllGroups();
 
-    $userGroups = $keycloakService->getUserGroups(
-        $userId
-    );
+        $userGroups = $keycloakService->getUserGroups(
+            $userId
+        );
 
-    return response()->json([
-        'groups' => $groups,
-        'selected_group_ids' => collect($userGroups)
-            ->pluck('id')
-            ->map(
-                fn ($id) => (string) $id
-            )
-            ->values()
-            ->all(),
-    ]);
-}
-
+        return response()->json([
+            'groups' => $groups,
+            'selected_group_ids' => collect($userGroups)
+                ->pluck('id')
+                ->map(
+                    fn ($id) => (string) $id
+                )
+                ->values()
+                ->all(),
+        ]);
+    }
 
     public function addGroup(
         Request $request,
@@ -905,4 +902,166 @@ public function __construct(
             'groups' => $groupSummary,
         ]);
     }
+
+    public function siakadTotal(
+        Request $request
+    ): JsonResponse {
+        $validated = $request->validate([
+            'type' => [
+                'required',
+                'in:dosen,mahasiswa',
+            ],
+        ]);
+
+        $endpoint = $validated['type'];
+
+        $response = Http::acceptJson()
+            ->timeout(30)
+            ->get(
+                rtrim(
+                    config('services.siakad.base_url'),
+                    '/'
+                ).'/'.$endpoint,
+                [
+                    'api_token' => config(
+                        'services.siakad.api_token'
+                    ),
+                    'page' => 1,
+                ]
+            );
+
+        if ($response->failed()) {
+            return response()->json([
+                'message' => 'Gagal mengambil data dari SIAKAD.',
+            ], 502);
+        }
+
+        $json = $response->json();
+
+        $data = $json['data'] ?? [];
+
+        return response()->json([
+            'total' => (int) (
+                $data['total'] ?? 0
+            ),
+            'per_page' => (int) (
+                $data['per_page'] ?? 10
+            ),
+            'current_page' => (int) (
+                $data['current_page'] ?? 1
+            ),
+            'last_page' => (int) (
+                $data['last_page'] ?? 0
+            ),
+        ]);
+    }
+
+
+    public function syncSiakad(
+    Request $request
+): JsonResponse {
+    $validated = $request->validate([
+        'type' => [
+            'required',
+            'in:dosen,mahasiswa',
+        ],
+        'limit' => [
+            'required',
+            'integer',
+            'in:50,100',
+        ],
+        'batch' => [
+            'required',
+            'integer',
+            'min:1',
+        ],
+    ]);
+
+    $type = $validated['type'];
+    $limit = $validated['limit'];
+    $batch = $validated['batch'];
+
+    $start = (($batch - 1) * $limit) + 1;
+
+    $end = $start + $limit - 1;
+
+    $apiPageSize = 10;
+
+    $startPage = (int) ceil(
+        $start / $apiPageSize
+    );
+
+    $endPage = (int) ceil(
+        $end / $apiPageSize
+    );
+
+    $allData = [];
+
+    for (
+        $page = $startPage;
+        $page <= $endPage;
+        $page++
+    ) {
+        $response = Http::acceptJson()
+            ->timeout(30)
+            ->get(
+                rtrim(
+                    config('services.siakad.base_url'),
+                    '/'
+                ).'/'.$type,
+                [
+                    'api_token' => config(
+                        'services.siakad.api_token'
+                    ),
+                    'page' => $page,
+                ]
+            );
+
+        if ($response->failed()) {
+            return response()->json([
+                'message' =>
+                    'Gagal mengambil data dari SIAKAD.',
+                'status' => $response->status(),
+            ], 502);
+        }
+
+        $json = $response->json();
+
+        $pageData =
+            $json['data']['data'] ?? [];
+
+        if (is_array($pageData)) {
+            $allData = array_merge(
+                $allData,
+                $pageData
+            );
+        }
+    }
+
+    $offset = $start - (
+        (($startPage - 1) * $apiPageSize) + 1
+    );
+
+    $data = array_slice(
+        $allData,
+        $offset,
+        $limit
+    );
+
+    return response()->json([
+        'message' =>
+            'Data SIAKAD berhasil diambil.',
+        'type' => $type,
+        'limit' => $limit,
+        'batch' => $batch,
+        'start' => $start,
+        'end' => min(
+            $end,
+            $start + count($data) - 1
+        ),
+        'data' => $data,
+    ]);
+}
+
+
 }

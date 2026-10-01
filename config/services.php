@@ -35,14 +35,21 @@ return [
         ],
     ],
 
-
     'keycloak' => [
-    'client_id' => env('KEYCLOAK_CLIENT_ID'),
-    'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
-    'redirect' => env('KEYCLOAK_REDIRECT_URI'),
+        'client_id' => env('KEYCLOAK_CLIENT_ID'),
+        'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
+        'redirect' => env('KEYCLOAK_REDIRECT_URI'),
 
-    'base_url' => env('KEYCLOAK_BASE_URL'),
-    'realms' => env('KEYCLOAK_REALM'),
-],
+        'base_url' => env('KEYCLOAK_BASE_URL'),
+        'realms' => env('KEYCLOAK_REALM'),
+    ],
+
+    'siakad' => [
+        'base_url' => env(
+            'SIAKAD_BASE_URL',
+            'https://cantik.bhamada.ac.id/api'
+        ),
+        'api_token' => env('SIAKAD_API_TOKEN'),
+    ],
 
 ];
