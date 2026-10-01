@@ -21,6 +21,8 @@ const processing = ref(false)
 const errorMessage = ref('')
 const errors = ref({})
 
+const successMessage = ref('')
+
 const skeletonLoading = ref(true)
 
 const availableGroups = ref([])
@@ -147,7 +149,7 @@ const loadAvailableGroups = async () => {
 
         errorMessage.value =
             error.response?.data?.message ||
-            'Group Keycloak gagal dimuat.'
+            'Group SSO gagal dimuat.'
     } finally {
         loadingGroups.value = false
     }
@@ -207,6 +209,7 @@ const getSelectedGroupName = (groupId) => {
 const submit = async () => {
     processing.value = true
     errorMessage.value = ''
+    successMessage.value = ''
     errors.value = {}
 
     try {
@@ -224,9 +227,19 @@ const submit = async () => {
             }
         )
 
-        router.visit(
-            `/admin/users/${response.data.user.id}`
-        )
+        showSubmitConfirm.value = false
+        showGroupSelect.value = false
+
+        successMessage.value =
+            response.data?.message ||
+            'User berhasil dibuat.'
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        })
+
+
     } catch (error) {
         if (error.response?.status === 422) {
             errors.value =
@@ -336,6 +349,11 @@ onMounted(() => {
                     <div v-if="errorMessage"
                         class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                         {{ errorMessage }}
+                    </div>
+
+                    <div v-if="successMessage"
+                        class="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                        {{ successMessage }}
                     </div>
 
                     <form class="space-y-6" @submit.prevent="openSubmitConfirm">
@@ -459,7 +477,7 @@ onMounted(() => {
                         </h2>
 
                         <p class="mt-1 text-sm text-gray-500">
-                            Pilih group Keycloak untuk user ini.
+                            Pilih group SSO untuk user ini.
                         </p>
                     </div>
 
@@ -492,7 +510,7 @@ onMounted(() => {
 
                         <div v-else
                             class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
-                            Group Keycloak tidak ditemukan.
+                            Group SSO tidak ditemukan.
                         </div>
 
                         <div v-if="selectedGroups.length"

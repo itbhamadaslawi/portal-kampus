@@ -123,6 +123,8 @@ class UserController extends Controller
             ],
         ]);
 
+        $validated['password'] = $validated['username'];
+
         $user = $keycloakService->createUser(
             $validated
         );
@@ -513,7 +515,7 @@ class UserController extends Controller
             ],
 
             'data.*.last_name' => [
-                'required',
+                'nullable',
                 'string',
                 'max:255',
             ],
@@ -1055,134 +1057,131 @@ class UserController extends Controller
     }
 
     public function siakadByIdentifier(
-    Request $request
-): JsonResponse {
-    $validated = $request->validate([
-        'type' => [
-            'required',
-            'in:mahasiswa,dosen',
-        ],
-        'identifier' => [
-            'required',
-            'string',
-            'max:100',
-        ],
-    ]);
+        Request $request
+    ): JsonResponse {
+        $validated = $request->validate([
+            'type' => [
+                'required',
+                'in:mahasiswa,dosen',
+            ],
+            'identifier' => [
+                'required',
+                'string',
+                'max:100',
+            ],
+        ]);
 
-    $type = $validated['type'];
+        $type = $validated['type'];
 
-    $identifier = strtoupper(
-        trim($validated['identifier'])
-    );
+        $identifier = strtoupper(
+            trim($validated['identifier'])
+        );
 
-    if ($type === 'mahasiswa') {
-        $endpoint = 'mahasiswa';
+        if ($type === 'mahasiswa') {
+            $endpoint = 'mahasiswa';
 
-        $parameter = [
-            'nim' => $identifier,
-        ];
-    } else {
-        $endpoint = 'dosen';
+            $parameter = [
+                'nim' => $identifier,
+            ];
+        } else {
+            $endpoint = 'dosen';
 
-        $parameter = [
-            'kode_dosen' => $identifier,
-        ];
-    }
+            $parameter = [
+                'kode_dosen' => $identifier,
+            ];
+        }
 
-    $response = Http::acceptJson()
-        ->timeout(30)
-        ->get(
-            rtrim(
-                config('services.siakad.base_url'),
-                '/'
-            ).'/'.$endpoint,
-            array_merge(
-                $parameter,
-                [
-                    'api_token' => config(
-                        'services.siakad.api_token'
-                    ),
-                ]
+        $response = Http::acceptJson()
+            ->timeout(30)
+            ->get(
+                rtrim(
+                    config('services.siakad.base_url'),
+                    '/'
+                ).'/'.$endpoint,
+                array_merge(
+                    $parameter,
+                    [
+                        'api_token' => config(
+                            'services.siakad.api_token'
+                        ),
+                    ]
+                )
+            );
+
+        if ($response->failed()) {
+            return response()->json([
+                'message' => 'Gagal mengambil data dari SIAKAD.',
+                'status' => $response->status(),
+            ], 502);
+        }
+
+        $json = $response->json();
+
+        $data = $json['data'] ?? [];
+
+        if (
+            isset($data['data']) &&
+            is_array($data['data'])
+        ) {
+            $items = $data['data'];
+        } elseif (is_array($data)) {
+            $items = $data;
+        } else {
+            $items = [];
+        }
+
+        $item = $items[0] ?? null;
+
+        if (! $item) {
+            return response()->json([
+                'message' => $type === 'mahasiswa'
+                        ? 'Mahasiswa dengan NIM tersebut tidak ditemukan.'
+                        : 'Dosen dengan kode tersebut tidak ditemukan.',
+            ], 404);
+        }
+
+        $nama = $type === 'mahasiswa'
+            ? ($item['nama_mahasiswa'] ?? '')
+            : ($item['nama_dosen'] ?? '');
+
+        $nama = trim(
+            preg_replace(
+                '/\s+/',
+                ' ',
+                (string) $nama
             )
         );
 
-    if ($response->failed()) {
+        $nama = strtoupper($nama);
+
+        $parts = $nama !== ''
+            ? explode(' ', $nama)
+            : [];
+
+        $firstName = $parts[0] ?? '';
+
+        $lastName = count($parts) > 1
+            ? implode(
+                ' ',
+                array_slice($parts, 1)
+            )
+            : '';
+
+        $username = $type === 'mahasiswa'
+            ? ($item['nim'] ?? '')
+            : ($item['kode_dosen'] ?? '');
+
         return response()->json([
-            'message' =>
-                'Gagal mengambil data dari SIAKAD.',
-            'status' => $response->status(),
-        ], 502);
+            'message' => $type === 'mahasiswa'
+                    ? 'Data mahasiswa berhasil diambil.'
+                    : 'Data dosen berhasil diambil.',
+            'data' => [
+                'type' => $type,
+                'username' => $username,
+                'firstName' => $firstName,
+                'lastName' => $lastName,
+                'email' => $item['email'] ?? '',
+            ],
+        ]);
     }
-
-    $json = $response->json();
-
-    $data = $json['data'] ?? [];
-
-    if (
-        isset($data['data']) &&
-        is_array($data['data'])
-    ) {
-        $items = $data['data'];
-    } elseif (is_array($data)) {
-        $items = $data;
-    } else {
-        $items = [];
-    }
-
-    $item = $items[0] ?? null;
-
-    if (! $item) {
-        return response()->json([
-            'message' =>
-                $type === 'mahasiswa'
-                    ? 'Mahasiswa dengan NIM tersebut tidak ditemukan.'
-                    : 'Dosen dengan kode tersebut tidak ditemukan.',
-        ], 404);
-    }
-
-    $nama = $type === 'mahasiswa'
-        ? ($item['nama_mahasiswa'] ?? '')
-        : ($item['nama_dosen'] ?? '');
-
-    $nama = trim(
-        preg_replace(
-            '/\s+/',
-            ' ',
-            (string) $nama
-        )
-    );
-
-    $nama = strtoupper($nama);
-
-    $parts = $nama !== ''
-        ? explode(' ', $nama)
-        : [];
-
-    $firstName = $parts[0] ?? '';
-
-    $lastName = count($parts) > 1
-        ? implode(
-            ' ',
-            array_slice($parts, 1)
-        )
-        : '';
-
-    $username = $type === 'mahasiswa'
-        ? ($item['nim'] ?? '')
-        : ($item['kode_dosen'] ?? '');
-
-    return response()->json([
-        'message' =>
-            $type === 'mahasiswa'
-                ? 'Data mahasiswa berhasil diambil.'
-                : 'Data dosen berhasil diambil.',
-        'data' => [
-            'type' => $type,
-            'username' => $username,
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'email' => $item['email'] ?? '',
-        ],
-    ]);
-}
 }
