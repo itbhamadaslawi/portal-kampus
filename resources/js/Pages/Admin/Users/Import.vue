@@ -1799,8 +1799,8 @@ item,
                                             </span>
 
                                             <div class="text-sm font-medium text-gray-800">
-    {{ group.path }}
-</div>
+                                                {{ group.path }}
+                                            </div>
                                         </span>
                                     </label>
                                 </div>
@@ -1888,9 +1888,19 @@ item,
                                     </div>
 
                                     <div class="mt-2 space-y-1">
-                                        <div v-for="group in selectedGroups" :key="group"
+                                        <div v-for="groupId in selectedGroups" :key="groupId"
                                             class="text-sm font-semibold text-blue-800">
-                                            {{ group }}
+                                            {{
+                                                availableGroups.find(
+                                                    group => group.id === groupId
+                                                )?.path
+                                                ||
+                                            availableGroups.find(
+                                            group => group.id === groupId
+                                            )?.name
+                                            ||
+                                            groupId
+                                            }}
                                         </div>
                                     </div>
                                 </div>

@@ -3,6 +3,7 @@ import { Head, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import DashboardLayout from '@/Layouts/DashboardLayout.vue'
+import UserSummary from '@/Components/Admin/Users/UserSummary.vue'
 
 const table = ref(null)
 
@@ -81,6 +82,8 @@ const loadTable = async () => {
 
             dataSrc: function (json) {
                 skeletonLoading.value = false
+
+                 
 
                 return Array.isArray(json?.data)
                     ? json.data
@@ -818,6 +821,9 @@ onBeforeUnmount(() => {
                     </button>
                 </div>
             </div>
+
+
+            <UserSummary />
 
 
             <div class="w-full min-w-0 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">

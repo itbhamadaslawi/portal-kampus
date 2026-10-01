@@ -237,7 +237,7 @@ const isAdmin = () => {
 
 
                 <!-- Sessions -->
-                <Link href="/admin/sessions" class="group flex h-11
+                <!-- <Link href="/admin/sessions" class="group flex h-11
                            items-center gap-3 rounded-lg px-3
                            text-sm font-medium
                            transition-colors" :class="isActive('/admin/sessions')
@@ -255,7 +255,7 @@ const isAdmin = () => {
                         Sessions
                     </span>
 
-                </Link>
+                </Link> -->
 
                 <Link href="/admin/banners" class="group flex h-11
            items-center gap-3 rounded-lg px-3

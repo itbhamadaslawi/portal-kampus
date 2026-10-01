@@ -1,4 +1,4 @@
-import{C as e,I as t,M as n,N as r,T as i,_ as a,g as o,h as s,l as c,p as l,t as u,u as d,w as f,y as p}from"./app-Bx-7FIdl.js";var m={class:`relative min-h-screen overflow-hidden bg-cover bg-center bg-no-repeat`,style:{"background-image":`linear-gradient(\r
+import{C as e,I as t,M as n,N as r,T as i,_ as a,g as o,h as s,l as c,p as l,t as u,u as d,w as f,y as p}from"./app-B4pwc8-Y.js";var m={class:`relative min-h-screen overflow-hidden bg-cover bg-center bg-no-repeat`,style:{"background-image":`linear-gradient(\r
                     rgba(6, 78, 59, 0.55),\r
                     rgba(6, 78, 59, 0.55)\r
                 ),\r

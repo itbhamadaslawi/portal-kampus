@@ -200,8 +200,29 @@ onBeforeUnmount(() => {
             pointer-events-none
         "
     >
+
+        <!-- ================================= -->
+        <!-- BACKGROUND BLUR -->
+        <!-- ================================= -->
         <div
             class="
+                pointer-events-none
+                fixed
+                inset-0
+                z-0
+                bg-black/10
+                backdrop-blur-md
+            "
+        ></div>
+
+
+        <!-- ================================= -->
+        <!-- BANNER -->
+        <!-- ================================= -->
+        <div
+            class="
+                relative
+                z-10
                 pointer-events-auto
                 w-[92%]
                 sm:w-[85%]
@@ -224,6 +245,7 @@ onBeforeUnmount(() => {
                 @touchstart="handleTouchStart"
                 @touchend="handleTouchEnd"
             >
+
                 <div
                     class="
                         relative
@@ -233,6 +255,7 @@ onBeforeUnmount(() => {
                         bg-gray-200
                     "
                 >
+
                     <!-- SKELETON -->
                     <div
                         v-if="!isImageLoaded"
@@ -288,6 +311,8 @@ onBeforeUnmount(() => {
                         </div>
                     </div>
 
+
+                    <!-- BANNER IMAGE -->
                     <transition
                         name="banner-fade"
                         mode="out-in"
@@ -362,6 +387,7 @@ onBeforeUnmount(() => {
                         </div>
                     </transition>
 
+
                     <!-- CLOSE -->
                     <button
                         type="button"
@@ -408,6 +434,7 @@ onBeforeUnmount(() => {
                         </svg>
                     </button>
 
+
                     <!-- PREVIOUS -->
                     <button
                         v-if="bannerCount > 1"
@@ -452,6 +479,7 @@ onBeforeUnmount(() => {
                             />
                         </svg>
                     </button>
+
 
                     <!-- NEXT -->
                     <button
@@ -498,6 +526,7 @@ onBeforeUnmount(() => {
                         </svg>
                     </button>
 
+
                     <!-- INDICATORS -->
                     <div
                         v-if="bannerCount > 1"
@@ -536,6 +565,7 @@ onBeforeUnmount(() => {
                             @click="goTo(index)"
                         ></button>
                     </div>
+
                 </div>
             </div>
         </div>
