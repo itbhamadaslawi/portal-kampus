@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\KeycloakSession;
 use App\Services\KeycloakLogoutService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Socialite\Facades\Socialite;
@@ -101,42 +101,11 @@ class AuthController extends Controller
     /**
      * Logout Laravel + Keycloak SSO.
      */
-    public function logout(Request $request): RedirectResponse
+    public function logout(Request $request): JsonResponse
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Ambil data Keycloak
-        |--------------------------------------------------------------------------
-        */
-
         $keycloakUser = $request->session()->get('keycloak_user', []);
 
         $idToken = $keycloakUser['id_token'] ?? null;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Logout Keycloak
-        |--------------------------------------------------------------------------
-        */
-
-        if ($idToken) {
-            $logoutUrl = rtrim(
-                config('services.keycloak.base_url'),
-                '/'
-            )
-                .'/realms/'
-                .config('services.keycloak.realms')
-                .'/protocol/openid-connect/logout';
-
-            try {
-                Http::timeout(10)->get($logoutUrl, [
-                    'id_token_hint' => $idToken,
-                    'client_id' => config('services.keycloak.client_id'),
-                ]);
-            } catch (\Throwable $e) {
-                report($e);
-            }
-        }
 
         /*
         |--------------------------------------------------------------------------
@@ -152,11 +121,41 @@ class AuthController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Kembali ke halaman login
+        | Tidak ada ID Token
         |--------------------------------------------------------------------------
         */
 
-        return redirect()->route('login');
+        if (! $idToken) {
+            return response()->json([
+                'success' => true,
+                'logout_url' => route('login'),
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Logout Keycloak
+        |--------------------------------------------------------------------------
+        */
+
+        $logoutUrl = rtrim(
+            config('services.keycloak.base_url'),
+            '/'
+        )
+            .'/realms/'
+            .config('services.keycloak.realms')
+            .'/protocol/openid-connect/logout';
+
+        $query = http_build_query([
+            'id_token_hint' => $idToken,
+            'client_id' => config('services.keycloak.client_id'),
+            'post_logout_redirect_uri' => route('logout.callback'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'logout_url' => $logoutUrl.'?'.$query,
+        ]);
     }
 
     public function backchannelLogout(

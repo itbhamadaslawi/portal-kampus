@@ -44,6 +44,11 @@ Route::get('/auth/callback', [
     'callback',
 ])->name('auth.callback');
 
+// Logout Keycloak callback
+Route::get('/logout/callback', function () {
+    return inertia('Auth/LogoutCallback');
+})->name('logout.callback');
+
 Route::post('/auth/backchannel-logout', [
     AuthController::class,
     'backchannelLogout',

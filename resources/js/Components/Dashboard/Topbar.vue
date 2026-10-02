@@ -34,17 +34,53 @@ const closeLogoutModal = () => {
     logoutModalOpen.value = false
 }
 
-const logout = () => {
-    if (logoutLoading.value) return
+const logout = async () => {
+    try {
+        const response = await axios.post(route('logout'))
 
-    logoutLoading.value = true
+        const logoutUrl = response.data.logout_url
 
-    router.post('/logout', {}, {
-        onFinish: () => {
-            logoutLoading.value = false
-            logoutModalOpen.value = false
-        },
-    })
+        if (!logoutUrl) {
+            window.location.href = route('login')
+            return
+        }
+
+        const popup = window.open(
+            logoutUrl,
+            'keycloak_logout',
+            'width=500,height=400,left=100,top=100'
+        )
+
+        /*
+        |--------------------------------------------------------------------------
+        | Popup diblokir browser
+        |--------------------------------------------------------------------------
+        */
+
+        if (!popup) {
+            window.location.href = logoutUrl
+            return
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tunggu popup ditutup
+        |--------------------------------------------------------------------------
+        */
+
+        const checkPopup = setInterval(() => {
+            if (popup.closed) {
+                clearInterval(checkPopup)
+
+                window.location.href = route('login')
+            }
+        }, 300)
+
+    } catch (error) {
+        console.error('Logout gagal:', error)
+
+        window.location.href = route('login')
+    }
 }
 
 const userName = () => {

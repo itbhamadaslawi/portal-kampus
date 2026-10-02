@@ -1,0 +1,1 @@
+import{D as e,T as t,v as n}from"./app-CENfbkN2.js";var r={__name:`LogoutCallback`,setup(r){return t(()=>{window.close()}),(t,r)=>(e(),n(`div`))}};export{r as default};
