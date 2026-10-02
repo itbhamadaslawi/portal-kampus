@@ -41,7 +41,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak token error: '
+                'SSO token error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -78,7 +78,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak session error: '
+                'SSO session error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -108,7 +108,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak device error: '
+                'SSO device error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -143,7 +143,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak refresh token error: '
+                'SSO refresh token error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -179,7 +179,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak logout session error: '
+                'SSO logout session error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -204,7 +204,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak user error: '
+                'SSO user error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -265,7 +265,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak update user error: '
+                'SSO update user error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -304,7 +304,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak users error: '
+                'SSO users error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -352,7 +352,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak create user error: '
+                'SSO create user error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -396,7 +396,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak update user status error: '
+                'SSO update user status error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -431,7 +431,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak reset password error: '
+                'SSO reset password error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -456,7 +456,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak delete user error: '
+                'SSO delete user error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -483,7 +483,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak logout user sessions error: '
+                'SSO logout user sessions error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -510,7 +510,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak user groups error: '
+                'SSO user groups error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -541,7 +541,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak add user group error: '
+                'SSO add user group error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -570,7 +570,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak remove user group error: '
+                'SSO remove user group error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -629,7 +629,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak users error: '
+                'SSO users error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -719,7 +719,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak groups error: '
+                'SSO groups error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -773,7 +773,7 @@ class KeycloakService
 
             if ($childrenResponse->failed()) {
                 throw new RuntimeException(
-                    'Keycloak child groups error: '
+                    'SSO child groups error: '
                     .$childrenResponse->status()
                     .' - '
                     .$childrenResponse->body()
@@ -830,7 +830,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak find user error: '
+                'SSO find user error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -874,7 +874,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak group members error: '
+                'SSO group members error: '
                 .$response->status()
                 .' - '
                 .$response->body()
@@ -903,7 +903,7 @@ class KeycloakService
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'Keycloak users error: '
+                'SSO users error: '
                 .$response->status()
                 .' - '
                 .$response->body()

@@ -408,7 +408,7 @@ onMounted(() => {
                             <div
                                 class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3"
                             >
-                                <div v-if="session.ip">
+                                <!-- <div v-if="session.ip">
                                     <p
                                         class="text-[11px] font-medium uppercase tracking-wide text-gray-400"
                                     >
@@ -420,7 +420,7 @@ onMounted(() => {
                                     >
                                         {{ session.ip }}
                                     </p>
-                                </div>
+                                </div> -->
 
                                 <div v-if="session.started_at">
                                     <p
