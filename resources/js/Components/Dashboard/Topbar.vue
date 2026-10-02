@@ -36,12 +36,12 @@ const closeLogoutModal = () => {
 
 const logout = async () => {
     try {
-        const response = await axios.post(route('logout'))
+        const response = await axios.post('/logout')
 
         const logoutUrl = response.data.logout_url
 
         if (!logoutUrl) {
-            window.location.href = route('login')
+            window.location.href = '/login'
             return
         }
 
@@ -64,7 +64,7 @@ const logout = async () => {
 
         /*
         |--------------------------------------------------------------------------
-        | Tunggu popup ditutup
+        | Tunggu popup selesai
         |--------------------------------------------------------------------------
         */
 
@@ -72,14 +72,14 @@ const logout = async () => {
             if (popup.closed) {
                 clearInterval(checkPopup)
 
-                window.location.href = route('login')
+                window.location.href = '/login'
             }
         }, 300)
 
     } catch (error) {
         console.error('Logout gagal:', error)
 
-        window.location.href = route('login')
+        window.location.href = '/login'
     }
 }
 
