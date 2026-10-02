@@ -32,11 +32,12 @@ const isActive = (url) => {
 const isAdmin = () => {
     const groups = page.props.auth?.user?.groups ?? []
 
-    return groups.some(
-        group => String(group).toLowerCase() === '/admin'
-    )
-}
+    return groups.some(group => {
+        const value = String(group).toLowerCase()
 
+        return value === '/admin' || value === '/admin-it'
+    })
+}
 
 </script>
 
